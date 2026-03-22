@@ -374,9 +374,10 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
         </div>
         <div class="guide green">
           ✅ 제출 내용 확인<br>
-          · 토의 준비 메모 (4항목)<br>
+          · 토의 준비 메모 (4항목) — <strong>AI가 자동으로 읽기 전략 분석</strong><br>
           · 팀 발화 기록 전체 (<span id="submit-utt-count">0</span>개)<br>
-          · 담화 분석 결과
+          · 담화 분석 결과<br>
+          <span style="font-size:11px;opacity:.8">* 핸드폰 사용자는 메모만 작성 후 제출해도 됩니다</span>
         </div>
         <button class="submit-btn" onclick="submitData()">📤 제출하기</button>
       </div>
@@ -442,6 +443,7 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
   sheet.appendRow([
     new Date(), d.이름, d.팀, d.구간,
     d.메모_명료화, d.메모_질문, d.메모_요약, d.메모_자유,
+    d.메모_주요전략, d.메모_전략분석, d.메모_전략분포,
     d.발화수, d.발화전체, d.코드분포, d.주요코드, d.제출시각
   ]);
   return ContentService.createTextOutput('ok');
@@ -463,7 +465,7 @@ function doGet(e){return ContentService.createTextOutput('ok')}</div>
       </div>
       <div style="overflow-x:auto">
         <table class="dtbl">
-          <thead><tr><th>이름</th><th>팀</th><th>구간</th><th>발화수</th><th>주요코드</th><th>발화 내용 (일부)</th><th>제출</th></tr></thead>
+          <thead><tr><th>이름</th><th>팀</th><th>구간</th><th>메모 주요전략</th><th>발화수</th><th>주요코드</th><th>발화 내용 (일부)</th><th>제출</th></tr></thead>
           <tbody id="data-tbody"><tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:20px">없음</td></tr></tbody>
         </table>
       </div>
@@ -788,24 +790,66 @@ function renderResult(){
 // ══════════════════════════════════════
 // 제출
 // ══════════════════════════════════════
+async function analyzeMemo(memo_clarify, memo_question, memo_summary, memo_free){
+  const all=[memo_clarify,memo_question,memo_summary,memo_free].filter(Boolean).join(' ');
+  if(!all.trim()) return {전략분포:'메모없음', 주요전략:'없음', 전략분석:'메모 없음'};
+  const prompt=`아래는 대학생이 에세이 읽기 토의 전에 혼자 작성한 메모입니다.
+PISA 읽기 전략 기준으로 분석하세요.
+
+[명료화 메모]: ${memo_clarify||'없음'}
+[질문 메모]: ${memo_question||'없음'}
+[요약 메모]: ${memo_summary||'없음'}
+[자유 메모]: ${memo_free||'없음'}
+
+다음 전략 유형으로 분류하세요:
+- LOCATE: 텍스트에서 정보를 찾거나 위치를 파악하는 전략
+- EVALUATE: 주장·근거·논리를 비판적으로 평가하는 전략
+- INTEGRATE: 여러 정보를 연결하거나 통합하여 요약하는 전략
+- REFLECT: 텍스트를 자신의 경험·세계와 연결하여 반성하는 전략
+- ACCESS: 질문을 만들고 토의에 참여하려는 전략
+
+JSON만 응답:
+{"전략분포":{"LOCATE":0,"EVALUATE":0,"INTEGRATE":0,"REFLECT":0,"ACCESS":0},"주요전략":"전략명","전략분석":"30자이내 요약"}`;
+  try{
+    const raw=await callClaude([{role:'user',content:prompt}],'읽기 교육 연구자. JSON만 응답.',600);
+    return JSON.parse(raw.replace(/```json|```/g,'').trim());
+  }catch(e){ return {전략분포:'분석실패', 주요전략:'오류', 전략분석:e.message}; }
+}
+
 async function submitData(){
-  if(!D.utts.length){toast('발화 기록이 없습니다');return}
-  toast('📊 저장 중…');
+  const memo_clarify=document.getElementById('memo-clarify').value||'';
+  const memo_question=document.getElementById('memo-question').value||'';
+  const memo_summary=document.getElementById('memo-summary').value||'';
+  const memo_free=document.getElementById('memo-free').value||'';
+  const hasMemo=memo_clarify||memo_question||memo_summary||memo_free;
+  const hasUtts=D.utts.length>0;
+  if(!hasMemo&&!hasUtts){toast('메모 또는 발화 기록이 필요합니다');return}
+
+  toast('📊 분석 및 저장 중…');
+
+  // 메모 읽기 전략 분석
+  let memoAnalysis={전략분포:'없음',주요전략:'없음',전략분석:'메모 없음'};
+  if(hasMemo){
+    try{ memoAnalysis=await analyzeMemo(memo_clarify,memo_question,memo_summary,memo_free); }
+    catch(e){}
+  }
+
   const counts={};
   D.utts.forEach(u=>{if(u.code)counts[u.code]=(counts[u.code]||0)+1;});
   const topCode=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'미분석';
-
-  // 발화 전체 (연구 분석용)
-  const uttsFull=D.utts.map((u,i)=>
-    `[발화${i+1}] ${u.speaker}: ${u.text} | 코드:${u.code||'미분석'}${u.reason?' ('+u.reason+')':''}`
-  ).join('\n');
+  const uttsFull=D.utts.length
+    ? D.utts.map((u,i)=>`[발화${i+1}] ${u.speaker}: ${u.text} | 코드:${u.code||'미분석'}${u.reason?' ('+u.reason+')':''}`).join('\n')
+    : '(토의 발화 없음)';
 
   const payload={
     이름:G.name, 팀:G.team, 구간:G.range,
-    메모_명료화:document.getElementById('memo-clarify').value||'',
-    메모_질문:document.getElementById('memo-question').value||'',
-    메모_요약:document.getElementById('memo-summary').value||'',
-    메모_자유:document.getElementById('memo-free').value||'',
+    메모_명료화:memo_clarify,
+    메모_질문:memo_question,
+    메모_요약:memo_summary,
+    메모_자유:memo_free,
+    메모_주요전략:memoAnalysis.주요전략||'',
+    메모_전략분석:memoAnalysis.전략분석||'',
+    메모_전략분포:typeof memoAnalysis.전략분포==='object'?JSON.stringify(memoAnalysis.전략분포):memoAnalysis.전략분포||'',
     발화수:D.utts.length,
     발화전체:uttsFull,
     코드분포:JSON.stringify(counts),
@@ -889,22 +933,87 @@ function renderTable(){
     <td><strong>${r.이름||''}</strong></td>
     <td>${r.팀||''}</td>
     <td style="font-size:11px">${r.구간||''}</td>
+    <td><span style="font-size:11px;font-weight:700;background:var(--teal-lt);color:var(--teal);padding:2px 7px;border-radius:8px">${r.메모_주요전략||'-'}</span></td>
     <td>${r.발화수||0}</td>
     <td><span style="font-size:11px;font-weight:700;background:var(--pur-lt);color:var(--pur);padding:2px 7px;border-radius:8px">${r.주요코드||'-'}</span></td>
-    <td style="font-size:11px;color:var(--ink2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.발화전체||'').split('\n').slice(0,2).join(' / ')}</td>
+    <td style="font-size:11px;color:var(--ink2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.발화전체||'').split('\n').slice(0,2).join(' / ')}</td>
     <td>${r.제출시각?'✅':'-'}</td>
   </tr>`).join('');
 }
+function dlCSV(rows, filename){
+  const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=filename+'_'+new Date().toLocaleDateString('ko-KR').replace(/[\s.]/g,'')+'.csv';
+  a.click();
+}
+
 function downloadCSV(){
   const data=JSON.parse(localStorage.getItem('rd_subs')||'[]');
   if(!data.length){toast('데이터가 없습니다');return}
-  const H=['이름','팀','구간','메모_명료화','메모_질문','메모_요약','메모_자유','발화수','주요코드','발화전체','코드분포','제출시각'];
-  const rows=data.map(r=>H.map(k=>r[k]||''));
-  const csv='\uFEFF'+[H,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download='읽기토의_'+new Date().toLocaleDateString('ko-KR').replace(/[\s.]/g,'')+'.csv';
-  a.click(); toast('📥 CSV 다운로드 완료');
+
+  // ── 파일 1: 학생 요약 (가로형) ──────────────────────
+  const H1=['이름','팀','구간',
+    '메모_명료화','메모_질문','메모_요약','메모_자유',
+    '메모_주요전략','메모_전략분석','메모_전략분포',
+    '발화수','주요코드','코드분포','제출시각'];
+  const rows1=[H1, ...data.map(r=>H1.map(k=>r[k]||''))];
+  dlCSV(rows1, '읽기토의_학생요약');
+
+  // ── 파일 2: 발화 상세 (세로형, R·Python·NVivo용) ────
+  const H2=['이름','팀','구간','발화번호','발화자','발화내용','담화코드','코드명','분석이유','입력방식','제출시각'];
+  const rows2=[H2];
+  const CODELAB={
+    CLA:'명료화',QUE:'탐구질문',SUM:'통합요약',EVA:'비판평가',
+    REF:'연결반성',EVI:'근거제시',EXT:'확장연결',NEG:'협상조정',MET:'메타담화'
+  };
+  data.forEach(r=>{
+    // 발화전체 파싱: "[발화N] 발화자: 내용 | 코드:XXX (이유)" 형식
+    const uttsFull=r.발화전체||'';
+    if(!uttsFull||uttsFull==='(토의 발화 없음)'){
+      // 발화 없는 경우 빈 행 1개
+      rows2.push([r.이름,r.팀,r.구간,'','','(발화 없음)','','','','',r.제출시각||'']);
+      return;
+    }
+    const lines=uttsFull.split('\n').filter(l=>l.trim());
+    lines.forEach((line,i)=>{
+      // 파싱: [발화N] 발화자: 내용 | 코드:XXX (이유)
+      const mNum=line.match(/^\[발화(\d+)\]/);
+      const num=mNum?mNum[1]:String(i+1);
+      // 발화자: 분리
+      const afterNum=line.replace(/^\[발화\d+\]\s*/,'');
+      const colonIdx=afterNum.indexOf(':');
+      const speaker=colonIdx>-1?afterNum.slice(0,colonIdx).trim():'';
+      const rest=colonIdx>-1?afterNum.slice(colonIdx+1).trim():afterNum;
+      // 내용 | 코드:XXX (이유) 분리
+      const pipeParts=rest.split('|');
+      const text=pipeParts[0].trim();
+      let code='', reason='';
+      if(pipeParts[1]){
+        const codePart=pipeParts[1].trim(); // "코드:QUE"
+        const mCode=codePart.match(/코드:([A-Z]+)/);
+        if(mCode) code=mCode[1];
+      }
+      if(pipeParts[2]){
+        reason=pipeParts[2].trim();
+      } else if(pipeParts[1]){
+        // 이유가 코드와 같은 파트에 있는 경우
+        const mReason=pipeParts[1].match(/\((.+?)\)/);
+        if(mReason) reason=mReason[1];
+      }
+      const codeLabel=CODELAB[code]||'';
+      rows2.push([
+        r.이름, r.팀, r.구간,
+        num, speaker, text,
+        code, codeLabel, reason,
+        '', r.제출시각||''
+      ]);
+    });
+  });
+  // 약간 딜레이 후 두 번째 파일 다운
+  setTimeout(()=>{ dlCSV(rows2, '읽기토의_발화상세'); },600);
+
+  toast('📥 CSV 2개 다운로드 — 학생요약 + 발화상세');
 }
 
 // ══════════════════════════════════════
