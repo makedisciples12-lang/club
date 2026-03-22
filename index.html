@@ -500,9 +500,10 @@ function stopRec(){
   // 버퍼에 내용이 있으면 발화로 저장
   const text=REC.buf.trim();
   if(text){
-    REC.utts.push({id:Date.now(), text, time:new Date().toLocaleTimeString('ko-KR'), code:null, reason:null, src:'stt'});
+    const utt = {id:Date.now(), text, time:new Date().toLocaleTimeString('ko-KR'), code:null, reason:null, src:'stt'};
     REC.buf='';
-    renderUtts();
+    if(window.fbPush && G.team) window.fbPush(G.team, utt);
+    else { REC.utts.push(utt); renderUtts(); }
   }
 
   const btn=document.getElementById('rec-btn');
@@ -518,9 +519,10 @@ function stopRec(){
 function addManual(){
   const ta=document.getElementById('manual-ta');
   const text=ta.value.trim(); if(!text) return;
-  REC.utts.push({id:Date.now(), text, time:new Date().toLocaleTimeString('ko-KR'), code:null, reason:null, src:'manual'});
+  const utt = {id:Date.now(), text, time:new Date().toLocaleTimeString('ko-KR'), code:null, reason:null, src:'manual'};
   ta.value='';
-  renderUtts();
+  if(window.fbPush && G.team) window.fbPush(G.team, utt);
+  else { REC.utts.push(utt); renderUtts(); }
   toast('✅ 발화 추가됨');
 }
 
@@ -656,9 +658,15 @@ async function submitData(){
   REC.utts.forEach(u=>{if(u.code)counts[u.code]=(counts[u.code]||0)+1;});
   const topCode=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'미분석';
 
+  // 발화 전체 내용 (연구 분석용)
+  const uttsFull = REC.utts.map((u,i)=>
+    `[발화${i+1}] ${u.text} | 코드:${u.code||'미분석'}${u.reason?' | '+u.reason:''}`
+  ).join('\n');
+
   const payload={
     이름:G.name, 팀:G.team, 구간:G.range,
     발화수:REC.utts.length,
+    발화전체:uttsFull,
     코드분포:JSON.stringify(counts),
     분석JSON:JSON.stringify(REC.utts.map(u=>({t:u.text.slice(0,80),c:u.code||'',r:u.reason||''}))).slice(0,3000),
     주요코드:topCode,
@@ -764,7 +772,7 @@ function renderTable(){
 function downloadCSV(){
   const data=JSON.parse(localStorage.getItem('rd_subs')||'[]');
   if(!data.length){ toast('데이터가 없습니다'); return; }
-  const H=['이름','팀','구간','발화수','주요코드','코드분포','제출시각'];
+  const H=['이름','팀','구간','발화수','주요코드','발화전체','코드분포','제출시각'];
   const rows=data.map(r=>H.map(k=>r[k]||''));
   const csv='\uFEFF'+[H,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');
@@ -782,6 +790,74 @@ function toast(msg){ const el=document.getElementById('toast'); el.textContent=m
 
 // 초기화
 loadTeacherSettings();
+</script>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyADMYKuvH5TR69r7zDhgzFZ45UlorSvIME",
+  authDomain: "bookclub-2cde1.firebaseapp.com",
+  databaseURL: "https://bookclub-2cde1-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bookclub-2cde1",
+  storageBucket: "bookclub-2cde1.firebasestorage.app",
+  messagingSenderId: "751217019859",
+  appId: "1:751217019859:web:cc0184bbcfc07391d13d26"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 팀 채널에 발화 전송
+window.fbPush = function(teamId, utt) {
+  const teamRef = ref(db, 'teams/' + teamId + '/utts');
+  push(teamRef, {
+    text: utt.text,
+    time: utt.time,
+    src: utt.src,
+    code: utt.code || null,
+    reason: utt.reason || null,
+    ts: Date.now()
+  });
+};
+
+// 팀 채널 실시간 구독
+window.fbSubscribe = function(teamId, callback) {
+  const teamRef = ref(db, 'teams/' + teamId + '/utts');
+  onValue(teamRef, (snapshot) => {
+    const data = snapshot.val();
+    if(!data) { callback([]); return; }
+    const utts = Object.entries(data)
+      .map(([k, v]) => ({...v, fbKey: k}))
+      .sort((a, b) => a.ts - b.ts);
+    callback(utts);
+  });
+};
+
+// 팀 채널 초기화 (연구자용)
+window.fbClearTeam = function(teamId) {
+  const teamRef = ref(db, 'teams/' + teamId);
+  remove(teamRef);
+};
+
+window.addEventListener('load', () => {
+  console.log('✅ Firebase 연결됨');
+  // 학생 페이지가 활성화되면 팀 구독 시작
+  const orig = window.studentLogin;
+  window.studentLogin = function() {
+    orig();
+    const team = document.getElementById('s-team').value;
+    if(!team) return;
+    if(window.fbSubscribe) {
+      window.fbSubscribe(team, (utts) => {
+        REC.utts = utts;
+        renderUtts();
+      });
+    }
+  };
+});
 </script>
 </body>
 </html>
