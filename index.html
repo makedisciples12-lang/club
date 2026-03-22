@@ -3,26 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>읽기 토의 연구 플랫폼</title>
+<title>북클럽 읽기 토의</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f5f2eb;--sf:#fffdf7;--ink:#1c1917;--ink2:#57534e;--ink3:#a8a29e;
-  --bd:#e7e3db;--grn:#16a34a;--grn-lt:#f0fdf4;--red:#c0392b;
+  --bd:#e7e3db;--grn:#16a34a;--grn-lt:#f0fdf4;--red:#c0392b;--red-lt:#fdf2f1;
   --pur:#7c3aed;--pur-lt:#f5f3ff;--teal:#0f766e;--teal-lt:#f0fdfa;
-  --amb:#b45309;--amb-lt:#fffbeb;--blu:#1d4ed8;
+  --amb:#b45309;--amb-lt:#fffbeb;--blu:#1d4ed8;--blu-lt:#eff6ff;
   --rs:8px;--r:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
-
-/* ── 페이지 전환 ── */
 .page{display:none}
 .page.active{display:flex;flex-direction:column;min-height:100vh}
 
-/* ── 로그인 ── */
+/* 로그인 */
 #login-page{align-items:center;justify-content:center;padding:24px}
-.brand{text-align:center;margin-bottom:28px}
+.brand{text-align:center;margin-bottom:24px}
 .brand-icon{display:inline-flex;width:56px;height:56px;background:var(--ink);border-radius:12px;align-items:center;justify-content:center;font-size:26px;margin-bottom:10px}
 .brand h1{font-family:"Noto Serif KR",serif;font-size:22px;font-weight:700}
 .brand p{color:var(--ink2);font-size:12px;margin-top:3px}
@@ -35,104 +33,90 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
 .field input,.field select{width:100%;padding:10px 12px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;color:var(--ink);background:var(--sf);outline:none}
 .field input:focus,.field select:focus{border-color:var(--pur)}
 .btn-main{width:100%;padding:12px;border:none;border-radius:var(--rs);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;background:var(--ink);color:#fff;margin-top:4px}
+.btn-main:hover{background:#2c2926}
 .note{background:var(--amb-lt);border:1px solid #fde68a;border-radius:var(--rs);padding:8px 12px;font-size:12px;color:var(--amb);margin-bottom:12px}
 
-/* ── 학생 페이지 ── */
+/* 학생 페이지 */
 #student-page{background:var(--bg)}
-.top-bar{background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:50px;flex-shrink:0}
+.top-bar{background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:50px;flex-shrink:0;position:sticky;top:0;z-index:50}
 .top-logo{font-family:"Noto Serif KR",serif;font-size:14px;font-weight:700}
-.top-nav{display:flex;gap:2px;background:var(--bg);padding:3px;border-radius:8px;border:1px solid var(--bd)}
-.nav-btn{padding:5px 10px;border:none;background:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:500;color:var(--ink2);cursor:pointer;white-space:nowrap}
-.nav-btn.on{background:var(--sf);color:var(--ink);font-weight:700}
+.top-info{font-size:11px;color:var(--ink2)}
 .btn-out{padding:5px 10px;border:1.5px solid var(--bd);border-radius:var(--rs);background:none;font-family:inherit;font-size:12px;cursor:pointer;color:var(--ink)}
+.main-content{flex:1;overflow-y:auto;padding:24px 20px;max-width:860px;margin:0 auto;width:100%}
 
-/* ── 콘텐츠 영역 ── */
-.content{flex:1;overflow-y:auto;padding:20px}
-.step{display:none}
-.step.active{display:block}
+/* 단계 카드 */
+.step-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:20px 24px;margin-bottom:16px}
+.step-card h2{font-family:"Noto Serif KR",serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.step-card .desc{font-size:13px;color:var(--ink2);line-height:1.8;margin-bottom:16px}
+.step-card .desc strong{color:var(--ink);font-weight:700}
 
-/* ── 설문 ── */
-.survey-header{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px 20px;margin-bottom:16px}
-.survey-header h2{font-family:"Noto Serif KR",serif;font-size:17px;font-weight:700;margin-bottom:4px}
-.survey-header p{font-size:12px;color:var(--ink2)}
-.info-bar{background:var(--teal-lt);border:1px solid #99f6e4;border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--teal);margin-bottom:14px}
-.q-wrap{max-width:700px;display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
-.q-card{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rs);padding:14px 16px}
-.q-num{font-size:10px;font-weight:700;color:var(--pur);letter-spacing:.5px;margin-bottom:4px}
-.q-text{font-size:13px;color:var(--ink);margin-bottom:10px;line-height:1.6}
-.likert{display:flex;border:1.5px solid var(--bd);border-radius:var(--rs);overflow:hidden}
-.likert label{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;cursor:pointer;border-right:1px solid var(--bd)}
-.likert label:last-child{border-right:none}
-.likert label:hover{background:var(--pur-lt)}
-.likert input{display:none}
-.likert input:checked ~ .lval{color:var(--pur);font-weight:700}
-.likert label:has(input:checked){background:var(--pur-lt)}
-.ldot{width:12px;height:12px;border-radius:50%;border:2px solid var(--bd)}
-.likert input:checked + .ldot{background:var(--pur);border-color:var(--pur)}
-.lval{font-size:10px;color:var(--ink3);text-align:center;line-height:1.3}
+/* 안내 박스 */
+.guide-box{border-radius:var(--rs);padding:12px 16px;font-size:12px;line-height:1.9;margin-bottom:14px}
+.guide-box.teal{background:var(--teal-lt);border:1px solid #99f6e4;color:var(--teal)}
+.guide-box.amber{background:var(--amb-lt);border:1px solid #fde68a;color:var(--amb)}
+.guide-box.blue{background:var(--blu-lt);border:1px solid #bfdbfe;color:var(--blu)}
+.guide-box.purple{background:var(--pur-lt);border:1px solid #ddd6fe;color:var(--pur)}
 
-/* ── 토의 ── */
-.disc-header{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.disc-header h2{font-family:"Noto Serif KR",serif;font-size:16px;font-weight:700}
-.timer-box{background:var(--ink);color:#fff;border-radius:var(--rs);padding:6px 12px;display:flex;align-items:center;gap:10px}
-.timer-num{font-family:"Courier New",monospace;font-size:18px;font-weight:700;color:#fde68a}
-.timer-ctrl{padding:3px 8px;border:none;border-radius:5px;background:var(--grn);color:#fff;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer}
-.disc-layout{display:grid;grid-template-columns:1fr 280px;gap:14px;max-width:1100px}
-.disc-main-col{display:flex;flex-direction:column;gap:12px}
-.disc-side-col{display:flex;flex-direction:column;gap:12px}
-.panel{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px}
-.panel-title{font-size:12px;font-weight:700;margin-bottom:10px;color:var(--ink)}
-.role-btns{display:flex;gap:6px;margin-bottom:10px}
-.role-btn{flex:1;padding:9px 4px;border:2px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--sf);color:var(--ink2);text-align:center}
-.role-btn.sel-C{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
-.role-btn.sel-Q{border-color:#16a34a;background:#f0fdf4;color:#15803d}
-.role-btn.sel-S{border-color:#b45309;background:#fffbeb;color:#92400e}
-.speaker-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.speaker-row span{font-size:11px;font-weight:700;color:var(--ink3)}
-.sp-btn{padding:3px 9px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:11px;cursor:pointer;background:var(--sf)}
-.sp-btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.utt-row{display:flex;gap:6px;align-items:flex-end}
-.utt-ta{flex:1;padding:8px 10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;color:var(--ink);outline:none;resize:none;line-height:1.5}
-.utt-ta:focus{border-color:var(--pur)}
-.icon-btn{width:34px;height:34px;border:none;border-radius:var(--rs);color:#fff;font-size:13px;cursor:pointer;flex-shrink:0}
-.utt-list{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto}
-.utt-item{background:var(--bg);border-radius:var(--rs);padding:8px 10px}
-.utt-meta{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap}
-.utt-spk{font-size:11px;font-weight:700}
-.role-tag{font-size:10px;font-weight:700;color:#fff;padding:1px 6px;border-radius:8px}
-.code-tag{font-size:10px;font-weight:700;color:#fff;padding:1px 6px;border-radius:8px}
-.utt-time{font-size:10px;color:var(--ink3);margin-left:auto}
-.utt-text{font-size:12px;color:var(--ink2);line-height:1.5}
-.utt-reason{font-size:10px;color:var(--ink3);margin-top:2px}
-.member-input-row{display:flex;gap:5px;margin-bottom:6px}
-.member-input-row input{flex:1;padding:6px 9px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:12px;outline:none}
-.add-btn{padding:6px 10px;background:var(--ink);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:12px;cursor:pointer}
-.member-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
-.m-tag{display:inline-flex;align-items:center;gap:3px;background:var(--ink);color:#fff;padding:2px 7px;border-radius:10px;font-size:11px}
-.m-tag button{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:11px;padding:0;line-height:1}
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px}
-.stat-item{text-align:center;background:var(--bg);border-radius:5px;padding:5px}
-.stat-num{font-size:16px;font-weight:700}
-.stat-lbl{font-size:9px;color:var(--ink3)}
-.code-btn{width:100%;padding:9px;background:var(--pur);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:6px}
-.csv-btn{width:100%;padding:7px;background:var(--grn);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer}
+/* 입력 정보 */
+.info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.info-item{background:var(--bg);border-radius:var(--rs);padding:10px 14px}
+.info-item .lbl{font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
+.info-item .val{font-size:14px;font-weight:700;color:var(--ink)}
 
-/* ── 하단 바 ── */
-.bot-bar{padding:10px 20px;border-top:1px solid var(--bd);background:var(--sf);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.dots{display:flex;gap:5px;align-items:center}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--bd)}
-.dot.done{background:var(--grn)}.dot.cur{background:var(--pur);width:18px;border-radius:3px}
-.bot-btns{display:flex;gap:7px}
-.btn-prev,.btn-next,.btn-submit{padding:8px 16px;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--bd);background:var(--sf);color:var(--ink)}
-.btn-next,.btn-submit{background:var(--ink);color:#fff;border-color:var(--ink)}
-.btn-submit{background:var(--grn);border-color:var(--grn);display:none}
+/* 녹음 영역 */
+.rec-area{background:var(--bg);border-radius:var(--r);padding:20px;margin-bottom:14px;text-align:center}
+.rec-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border:none;border-radius:50px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.rec-btn.idle{background:var(--ink);color:#fff}
+.rec-btn.idle:hover{background:#2c2926;transform:translateY(-1px)}
+.rec-btn.recording{background:var(--red);color:#fff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.4)}50%{box-shadow:0 0 0 10px rgba(192,57,43,0)}}
+.rec-dot{width:10px;height:10px;border-radius:50%;background:#fff;flex-shrink:0}
+.rec-btn.recording .rec-dot{animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.rec-status{font-size:12px;color:var(--ink3);margin-top:10px;min-height:18px}
+.live-text{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rs);padding:12px 14px;font-size:13px;color:var(--ink2);min-height:60px;text-align:left;line-height:1.7;margin-top:10px;word-break:break-all}
+.live-text.active{border-color:var(--red);color:var(--ink)}
 
-/* ── 연구자 ── */
+/* 발화 목록 */
+.utt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.utt-header .title{font-size:13px;font-weight:700}
+.utt-header .count{font-size:12px;color:var(--ink3)}
+.utt-list{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto}
+.utt-item{background:var(--bg);border-radius:var(--rs);padding:10px 12px}
+.utt-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.utt-time{font-size:10px;color:var(--ink3)}
+.code-badge{font-size:10px;font-weight:700;color:#fff;padding:1px 7px;border-radius:8px}
+.utt-text{font-size:13px;color:var(--ink);line-height:1.6}
+.utt-reason{font-size:11px;color:var(--ink3);margin-top:3px;font-style:italic}
+.del-btn{margin-left:auto;background:none;border:none;color:var(--ink3);cursor:pointer;font-size:13px;padding:0;line-height:1}
+
+/* 수동 입력 */
+.manual-area{margin-top:12px}
+.manual-area .label{font-size:12px;font-weight:700;color:var(--ink3);margin-bottom:6px}
+.manual-row{display:flex;gap:6px;align-items:flex-end}
+.manual-ta{flex:1;padding:9px 12px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;color:var(--ink);outline:none;resize:none;line-height:1.5}
+.manual-ta:focus{border-color:var(--pur)}
+.add-btn{padding:9px 14px;background:var(--pur);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+
+/* 분석 버튼 */
+.analyze-btn{width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:14px}
+.analyze-btn:disabled{background:var(--bd);cursor:not-allowed}
+.analyze-result{background:var(--bg);border-radius:var(--r);padding:16px;margin-top:12px}
+.analyze-result .a-title{font-size:13px;font-weight:700;margin-bottom:10px}
+.code-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:12px}
+.code-bar-wrap{flex:1;height:6px;background:var(--bd);border-radius:3px;margin:0 8px}
+.code-bar{height:100%;border-radius:3px;transition:width .5s}
+
+/* 제출 */
+.submit-btn{width:100%;padding:14px;background:var(--grn);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px}
+.submit-btn:hover{background:#15803d}
+
+/* 연구자 */
 #teacher-page{background:var(--bg)}
 .t-top{background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;flex-shrink:0}
 .t-top h2{font-family:"Noto Serif KR",serif;font-size:15px;font-weight:700}
 .t-btn{padding:5px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:var(--rs);background:none;color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
-.t-body{max-width:1000px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.t-body{max-width:900px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1}
 .tc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:20px}
 .tc h3{font-family:"Noto Serif KR",serif;font-size:14px;font-weight:700;margin-bottom:4px}
 .tc-sub{font-size:12px;color:var(--ink2);margin-bottom:12px;line-height:1.6}
@@ -145,37 +129,13 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
 .code-val{font-family:"Courier New",monospace;font-size:24px;font-weight:700;letter-spacing:5px;color:#fde68a}
 .dtbl{width:100%;border-collapse:collapse;font-size:12px}
 .dtbl th{padding:7px 9px;background:var(--bg);font-weight:700;color:var(--ink3);text-align:left;border-bottom:2px solid var(--bd)}
-.dtbl td{padding:8px 9px;border-bottom:1px solid var(--bd)}
+.dtbl td{padding:8px 9px;border-bottom:1px solid var(--bd);vertical-align:middle}
 .script-box{background:var(--ink);color:#86efac;border-radius:var(--rs);padding:12px;font-family:"Courier New",monospace;font-size:11px;line-height:1.8;margin-bottom:10px;overflow-x:auto;white-space:pre}
+.api-saved-note{font-size:11px;color:var(--grn);margin-top:6px;display:none}
 
-/* ── AI ── */
-.ai-aside{width:280px;border-left:1px solid var(--bd);display:flex;flex-direction:column;background:var(--sf);flex-shrink:0}
-.ai-head{background:var(--ink);color:#fff;padding:0 12px;height:44px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;flex-shrink:0}
-.ai-dot{width:6px;height:6px;background:#86efac;border-radius:50%;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.ai-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:7px}
-.msg{max-width:88%;padding:8px 11px;border-radius:12px;font-size:12px;line-height:1.6}
-.msg.u{align-self:flex-end;background:var(--ink);color:#fff}
-.msg.a{align-self:flex-start;background:var(--bg);color:var(--ink)}
-.msg .lbl{font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:2px}
-.typing{align-self:flex-start;display:flex;gap:3px;padding:8px 11px;background:var(--bg);border-radius:12px}
-.typing span{width:5px;height:5px;background:var(--ink3);border-radius:50%;animation:bo 1.2s infinite}
-.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
-@keyframes bo{0%,100%{transform:none;opacity:.4}50%{transform:translateY(-3px);opacity:1}}
-.ai-input-row{padding:8px 10px;display:flex;gap:5px;align-items:flex-end;border-top:1px solid var(--bd);flex-shrink:0}
-.ai-input-row textarea{flex:1;padding:6px 9px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:12px;resize:none;outline:none;max-height:70px;line-height:1.4}
-.ai-send{width:32px;height:32px;background:var(--pur);border:none;border-radius:var(--rs);color:#fff;font-size:12px;cursor:pointer;flex-shrink:0}
-.ai-send:disabled{background:var(--bd)}
-
-/* ── 학생 메인 레이아웃 ── */
-.student-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - 100px)}
-.student-main{flex:1;overflow-y:auto;padding:20px}
-
-/* ── 토스트 ── */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:10px 14px;border-radius:var(--rs);font-size:13px;font-weight:500;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
+/* 토스트 */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:300px}
 .toast.show{transform:none;opacity:1}
-
-@media(max-width:800px){.ai-aside{display:none}.disc-layout{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -184,7 +144,7 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
 <div id="login-page" class="page active">
   <div class="brand">
     <div class="brand-icon">📖</div>
-    <h1>읽기 토의 연구</h1>
+    <h1>북클럽 읽기 토의</h1>
     <p>협력 읽기 담화 분석 플랫폼</p>
   </div>
   <div class="card">
@@ -193,8 +153,8 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
       <button class="tab-btn" onclick="switchTab('t')">교사/연구자</button>
     </div>
     <div id="tab-s">
-      <div class="field"><label>이름</label><input id="s-name" placeholder="홍길동"></div>
-      <div class="field"><label>입장 코드</label><input id="s-code" placeholder="READ1" style="letter-spacing:4px;font-weight:700;text-transform:uppercase"></div>
+      <div class="field"><label>이름</label><input id="s-name" placeholder="홍길동" autocomplete="off"></div>
+      <div class="field"><label>입장 코드</label><input id="s-code" placeholder="READ1" maxlength="8" style="letter-spacing:4px;font-weight:700;text-transform:uppercase"></div>
       <div class="field"><label>팀 번호</label>
         <select id="s-team">
           <option value="">-- 팀 선택 --</option>
@@ -202,7 +162,7 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
           <option>4팀</option><option>5팀</option><option>6팀</option><option>7팀</option>
         </select>
       </div>
-      <div class="field"><label>담당 텍스트 구간</label><input id="s-range" placeholder="예: 1~30쪽"></div>
+      <div class="field"><label>담당 텍스트 구간</label><input id="s-range" placeholder="예: 1~30쪽 / 1~3장"></div>
       <button class="btn-main" onclick="studentLogin()">입장하기 →</button>
     </div>
     <div id="tab-t" style="display:none">
@@ -216,135 +176,113 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
 <!-- ══ 학생 페이지 ══ -->
 <div id="student-page" class="page">
   <div class="top-bar">
-    <div class="top-logo">📖 <span id="badge-name" style="font-size:11px;font-weight:400;color:var(--ink2)"></span></div>
-    <div class="top-nav">
-      <button class="nav-btn on" id="nav-pre" onclick="gotoStep('pre')">① 사전 설문</button>
-      <button class="nav-btn" id="nav-disc" onclick="gotoStep('disc')">② 팀 토의</button>
-      <button class="nav-btn" id="nav-post" onclick="gotoStep('post')">③ 사후 설문</button>
-    </div>
+    <div class="top-logo">📖 북클럽 읽기 토의</div>
+    <div class="top-info" id="top-info"></div>
     <button class="btn-out" onclick="goLogin()">나가기</button>
   </div>
+  <div class="main-content">
 
-  <div class="student-body">
-    <div class="student-main">
-
-      <!-- 사전 설문 -->
-      <div id="step-pre" class="step active">
-        <div class="survey-header">
-          <h2>① 사전 설문 — 에세이 읽기 경험</h2>
-          <p>수업 시작 전, 평소 에세이를 혼자 읽을 때를 떠올리며 솔직하게 답해주세요. (약 1분)</p>
-        </div>
-        <div class="info-bar">📌 1=전혀 그렇지 않다 · 2=그렇지 않다 · 3=보통이다 · 4=그렇다 · 5=매우 그렇다</div>
-        <div class="q-wrap" id="pre-wrap"></div>
+    <!-- 활동 안내 -->
+    <div class="step-card">
+      <h2>오늘 활동 안내</h2>
+      <div class="desc">
+        오늘은 팀원들과 함께 읽은 에세이 텍스트를 토의하는 시간입니다.<br>
+        <strong>이 페이지는 팀에서 1명이 대표로 사용합니다.</strong>
+        나머지 팀원들은 옆에서 함께 보면서 토의에 참여하세요.
       </div>
-
-      <!-- 팀 토의 -->
-      <div id="step-disc" class="step">
-        <div class="disc-header">
-          <div>
-            <h2>② 팀 토의 — C · Q · S 역할 분담</h2>
-            <p style="font-size:12px;color:var(--ink2);margin-top:2px">역할 버튼 선택 → 발화자 선택 → 입력 후 Enter</p>
-          </div>
-          <div class="timer-box">
-            <div>
-              <div style="font-size:9px;color:rgba(255,255,255,.5)">경과</div>
-              <div class="timer-num" id="timer-num">00:00</div>
-            </div>
-            <div>
-              <div style="font-size:9px;color:rgba(255,255,255,.5);margin-bottom:2px" id="cycle-lbl">사이클 1</div>
-              <button class="timer-ctrl" id="timer-btn" onclick="toggleTimer()">▶ 시작</button>
-            </div>
-          </div>
-        </div>
-        <div class="disc-layout">
-          <div class="disc-main-col">
-            <div class="panel">
-              <div class="panel-title">역할 선택</div>
-              <div class="role-btns">
-                <button class="role-btn" id="rb-C" onclick="pickRole('C')">🔍 Clarify<br><span style="font-size:10px;font-weight:400">명료화</span></button>
-                <button class="role-btn" id="rb-Q" onclick="pickRole('Q')">❓ Question<br><span style="font-size:10px;font-weight:400">질문</span></button>
-                <button class="role-btn" id="rb-S" onclick="pickRole('S')">📝 Summarize<br><span style="font-size:10px;font-weight:400">요약</span></button>
-              </div>
-              <div class="speaker-row">
-                <span>발화자</span>
-                <div id="speaker-btns"><span style="font-size:11px;color:var(--ink3)">오른쪽에서 팀원 추가</span></div>
-              </div>
-              <div class="utt-row">
-                <textarea id="utt-ta" class="utt-ta" rows="2" placeholder="발화 내용 입력 후 Enter 또는 ↵ 버튼…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addUtt()}"></textarea>
-                <div style="display:flex;flex-direction:column;gap:4px">
-                  <button class="icon-btn" style="background:var(--grn)" onclick="toggleMic()" id="mic-btn" title="음성 녹음">🎙</button>
-                  <button class="icon-btn" style="background:var(--pur)" onclick="addUtt()" title="발화 추가">↵</button>
-                </div>
-              </div>
-              <div id="mic-status" style="font-size:11px;color:var(--ink3);margin-top:4px;min-height:14px"></div>
-            </div>
-            <div class="panel">
-              <div class="panel-title">발화 목록 (<span id="utt-count">0</span>개)</div>
-              <div class="utt-list" id="utt-list">
-                <div style="font-size:11px;color:var(--ink3);text-align:center;padding:20px">아직 발화가 없습니다</div>
-              </div>
-            </div>
-          </div>
-          <div class="disc-side-col">
-            <div class="panel">
-              <div class="panel-title">👥 팀 설정</div>
-              <div class="member-input-row">
-                <input id="member-input" placeholder="이름 입력" onkeydown="if(event.key==='Enter')addMember()">
-                <button class="add-btn" onclick="addMember()">추가</button>
-              </div>
-              <div class="member-tags" id="member-tags"></div>
-            </div>
-            <div class="panel">
-              <div class="panel-title">📊 실시간 통계</div>
-              <div id="stats-area"><span style="font-size:11px;color:var(--ink3)">발화 추가 시 표시</span></div>
-            </div>
-            <div class="panel">
-              <div class="panel-title">🤖 PISA/CCSS 자동 코딩</div>
-              <p style="font-size:11px;color:var(--ink2);margin-bottom:8px;line-height:1.6">토의 종료 후 전체 발화를 PISA/CCSS 분석틀로 자동 코딩합니다.</p>
-              <button class="code-btn" id="code-btn" onclick="runCoding()">🔬 자동 코딩 실행</button>
-              <button class="csv-btn" onclick="downloadDiscCSV()">📥 토의 CSV 저장</button>
-            </div>
-          </div>
-        </div>
+      <div class="guide-box teal">
+        <strong>📋 활동 순서</strong><br>
+        1단계 · 아래 녹음 버튼을 눌러 팀 토의를 시작하세요<br>
+        2단계 · 팀원들과 자유롭게 텍스트에 대해 이야기하세요 — 말하는 내용이 자동으로 글자로 변환됩니다<br>
+        3단계 · 토의가 끝나면 분석 버튼을 눌러 담화 분석을 실행하세요<br>
+        4단계 · 결과 확인 후 제출하세요
       </div>
-
-      <!-- 사후 설문 -->
-      <div id="step-post" class="step">
-        <div class="survey-header">
-          <h2>③ 사후 설문 — 오늘 북클럽 토의 경험</h2>
-          <p>방금 끝난 팀 토의를 떠올리며 솔직하게 답해주세요. (약 1분)</p>
-        </div>
-        <div class="info-bar">📌 1=전혀 그렇지 않다 · 2=그렇지 않다 · 3=보통이다 · 4=그렇다 · 5=매우 그렇다</div>
-        <div class="q-wrap" id="post-wrap"></div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">팀</div><div class="val" id="disp-team">-</div></div>
+        <div class="info-item"><div class="lbl">텍스트 구간</div><div class="val" id="disp-range">-</div></div>
       </div>
-
-    </div><!-- /student-main -->
-
-    <!-- AI 사이드 -->
-    <aside class="ai-aside">
-      <div class="ai-head"><div class="ai-dot"></div>AI 도우미</div>
-      <div class="ai-msgs" id="ai-msgs">
-        <div class="msg a"><div class="lbl">Claude AI</div>안녕하세요! 오늘 읽기 토의를 도와드릴게요. 텍스트 내용이나 배경지식이 궁금하면 무엇이든 물어보세요 😊</div>
-      </div>
-      <div class="ai-input-row">
-        <textarea id="ai-ta" placeholder="질문 입력…" rows="2" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI()}"></textarea>
-        <button class="ai-send" id="ai-send" onclick="sendAI()">▶</button>
-      </div>
-    </aside>
-  </div><!-- /student-body -->
-
-  <div class="bot-bar">
-    <div class="dots">
-      <div class="dot cur" id="dot-pre"></div>
-      <div class="dot" id="dot-disc"></div>
-      <div class="dot" id="dot-post"></div>
     </div>
-    <div class="bot-btns">
-      <button class="btn-prev" id="btn-prev" onclick="prevStep()" style="display:none">← 이전</button>
-      <button class="btn-next" id="btn-next" onclick="nextStep()">다음 단계 →</button>
-      <button class="btn-submit" id="btn-submit" onclick="submitAll()">📤 최종 제출</button>
+
+    <!-- 녹음 & 전사 -->
+    <div class="step-card">
+      <h2>🎙 팀 토의 녹음</h2>
+      <div class="desc">
+        아래 버튼을 누르면 마이크가 켜지면서 팀원들의 대화가 실시간으로 글자로 변환됩니다.<br>
+        <strong>Chrome 브라우저에서만 작동합니다.</strong> 토의가 끝나면 다시 버튼을 눌러 종료하세요.
+      </div>
+      <div class="guide-box amber">
+        💡 <strong>녹음 팁</strong><br>
+        · 노트북을 팀 중앙에 놓으면 여러 사람의 목소리가 잘 잡힙니다<br>
+        · 한 사람이 말을 마친 후 다음 사람이 말하면 더 정확하게 인식됩니다<br>
+        · 인식이 잘못됐다면 아래 "직접 입력" 칸에 수동으로 추가할 수 있습니다
+      </div>
+      <div class="rec-area">
+        <button class="rec-btn idle" id="rec-btn" onclick="toggleRec()">
+          <span class="rec-dot" style="background:#86efac"></span>
+          <span id="rec-btn-text">녹음 시작</span>
+        </button>
+        <div class="rec-status" id="rec-status">버튼을 누르면 녹음이 시작됩니다</div>
+        <div class="live-text" id="live-text">여기에 실시간 전사 내용이 표시됩니다…</div>
+      </div>
+
+      <!-- 발화 목록 -->
+      <div class="utt-header">
+        <div class="title">기록된 발화</div>
+        <div class="count"><span id="utt-count">0</span>개</div>
+      </div>
+      <div class="utt-list" id="utt-list">
+        <div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">
+          녹음을 시작하면 발화가 여기에 쌓입니다
+        </div>
+      </div>
+
+      <!-- 수동 입력 -->
+      <div class="manual-area">
+        <div class="label">✏️ 직접 입력 (녹음 오류 수정 또는 추가)</div>
+        <div class="manual-row">
+          <textarea id="manual-ta" class="manual-ta" rows="2"
+            placeholder="텍스트에 대해 나눈 이야기를 직접 입력해도 됩니다…"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addManual()}"></textarea>
+          <button class="add-btn" onclick="addManual()">추가</button>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- 담화 분석 -->
+    <div class="step-card">
+      <h2>🔬 담화 분석</h2>
+      <div class="desc">
+        토의가 끝난 후 아래 버튼을 누르면 AI가 팀의 대화를 분석합니다.<br>
+        <strong>어떤 읽기 전략을 얼마나 사용했는지</strong> — 명료화, 질문, 요약, 평가, 연결 등을 자동으로 분류합니다.
+      </div>
+      <div class="guide-box purple">
+        🤖 <strong>분석 항목 예시</strong><br>
+        · <strong>명료화(CLA)</strong> — "이 문장에서 '모순'이 무슨 뜻이에요?" 처럼 모호한 부분을 밝히는 발화<br>
+        · <strong>탐구 질문(QUE)</strong> — "저자가 왜 이 주장을 했을까요?" 처럼 함께 생각할 질문<br>
+        · <strong>통합 요약(SUM)</strong> — "결국 이 글의 핵심은 ~라는 거죠?" 처럼 내용을 묶는 발화<br>
+        · <strong>비판 평가(EVA)</strong> — "이 근거는 설득력이 없는 것 같아요" 처럼 주장을 평가하는 발화<br>
+        · <strong>연결(REF)</strong> — "이게 우리 일상에서도 ~인 것 같아요" 처럼 경험과 연결하는 발화
+      </div>
+      <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">
+        🔬 담화 분석 실행하기
+      </button>
+      <div id="analysis-result" style="display:none" class="analyze-result">
+        <div class="a-title">📊 분석 결과</div>
+        <div id="result-content"></div>
+      </div>
+    </div>
+
+    <!-- 제출 -->
+    <div class="step-card">
+      <h2>📤 제출</h2>
+      <div class="desc">
+        토의와 분석이 끝났으면 아래 버튼을 눌러 데이터를 제출하세요.<br>
+        제출된 데이터는 읽기 교육 연구에 활용됩니다. 감사합니다 😊
+      </div>
+      <button class="submit-btn" onclick="submitData()">📤 제출하기</button>
+    </div>
+
+  </div><!-- /main-content -->
 </div>
 
 <!-- ══ 연구자 페이지 ══ -->
@@ -358,9 +296,12 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
     </div>
   </div>
   <div class="t-body">
+
+    <!-- API 키 -->
     <div class="tc">
-      <h3>🔑 Claude API 키</h3>
-      <p class="tc-sub">API 키를 입력하면 담화 자동 코딩과 AI 도우미가 활성화됩니다.</p>
+      <h3>🔑 Claude API 키 (전체 적용)</h3>
+      <p class="tc-sub">여기에 API 키를 저장하면 학생 페이지에서도 자동으로 사용됩니다. 학생들은 API 키를 신경 쓸 필요가 없습니다.<br>
+      발급: <a href="https://console.anthropic.com" target="_blank" style="color:var(--blu)">console.anthropic.com</a> → API Keys → Create Key</p>
       <div class="input-row">
         <input id="api-input" type="password" placeholder="sk-ant-api03-...">
         <button class="sm-btn red" onclick="saveApiKey()">저장</button>
@@ -368,38 +309,48 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
       </div>
       <p id="api-status" style="font-size:11px;color:var(--ink3);margin-top:5px">미설정</p>
     </div>
+
+    <!-- 입장 코드 -->
     <div class="tc">
-      <h3>🎟️ 입장 코드</h3>
+      <h3>🎟️ 학생 입장 코드</h3>
+      <p class="tc-sub">수업 시작 전 학생들에게 이 코드를 알려주세요.</p>
       <div class="code-display">
-        <div><div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:2px">현재 코드</div><div class="code-val" id="code-display">READ1</div></div>
-        <div style="display:flex;gap:5px"><button class="sm-btn" onclick="newCode()">새 코드</button><button class="sm-btn" onclick="copyCode()">복사</button></div>
+        <div>
+          <div style="font-size:9px;color:rgba(255,255,255,.4);margin-bottom:2px">현재 코드</div>
+          <div class="code-val" id="code-display">READ1</div>
+        </div>
+        <div style="display:flex;gap:5px">
+          <button class="sm-btn" onclick="newCode()">새 코드</button>
+          <button class="sm-btn" onclick="copyCode()">복사</button>
+        </div>
       </div>
     </div>
+
+    <!-- Google Sheets -->
     <div class="tc">
-      <h3>📊 Google Sheets 연동</h3>
-      <p class="tc-sub">Google Sheets Apps Script에 아래 코드를 붙여넣고 웹앱으로 배포하세요.</p>
+      <h3>📊 Google Sheets 자동 저장</h3>
+      <p class="tc-sub">아래 Apps Script 코드를 Google Sheets에 배포하면 학생 제출 시 자동 저장됩니다.</p>
       <div class="script-box">function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
+  var d = JSON.parse(e.postData.contents);
   sheet.appendRow([
-    new Date(), data.이름, data.팀, data.구간,
-    data.사전Q1, data.사전Q2, data.사전Q3, data.사전Q4,
-    data.사전Q5, data.사전Q6, data.사전Q7, data.사전Q8,
-    data.발화수, data.C수, data.Q수, data.S수, data.코드JSON,
-    data.사후Q1, data.사후Q2, data.사후Q3, data.사후Q4,
-    data.사후Q5, data.사후Q6, data.사후Q7, data.사후Q8
+    new Date(), d.이름, d.팀, d.구간,
+    d.발화수, d.분석JSON, d.코드분포, d.제출시각
   ]);
   return ContentService.createTextOutput('ok');
 }
 function doGet(e){return ContentService.createTextOutput('ok')}</div>
+      <p class="tc-sub">배포: Google Sheets → 확장프로그램 → Apps Script → 코드 붙여넣기 → 배포 → 웹앱 (모든 사용자)</p>
       <div class="input-row">
         <input id="sheets-input" type="url" placeholder="https://script.google.com/macros/s/.../exec">
         <button class="sm-btn grn" onclick="saveSheets()">저장</button>
       </div>
       <p id="sheets-status" style="font-size:11px;color:var(--ink3);margin-top:5px">미설정</p>
     </div>
+
+    <!-- 수집 데이터 -->
     <div class="tc">
-      <h3>🔬 수집 데이터</h3>
+      <h3>🔬 수집 데이터 현황</h3>
       <div id="data-summary" style="margin-bottom:10px"></div>
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
         <button class="sm-btn grn" onclick="downloadCSV()">📥 CSV</button>
@@ -408,11 +359,17 @@ function doGet(e){return ContentService.createTextOutput('ok')}</div>
       </div>
       <div style="overflow-x:auto">
         <table class="dtbl">
-          <thead><tr><th>이름</th><th>팀</th><th>구간</th><th>사전평균</th><th>발화수</th><th>C</th><th>Q</th><th>S</th><th>사후평균</th><th>제출</th></tr></thead>
-          <tbody id="data-tbody"><tr><td colspan="10" style="text-align:center;color:var(--ink3);padding:20px">없음</td></tr></tbody>
+          <thead><tr>
+            <th>이름</th><th>팀</th><th>구간</th>
+            <th>발화수</th><th>주요 담화 유형</th><th>제출</th>
+          </tr></thead>
+          <tbody id="data-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--ink3);padding:20px">없음</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -420,57 +377,31 @@ function doGet(e){return ContentService.createTextOutput('ok')}</div>
 
 <script>
 // ══════════════════════════════════════
-// 데이터
+// 담화 코드 정의
 // ══════════════════════════════════════
-const PRE_Q = [
-  '읽을 때 모호하거나 어려운 부분을 만나면 그 의미를 스스로 찾아봅니다.',
-  '텍스트의 핵심 주장이나 주제를 파악하기 위해 요약해본 적이 있습니다.',
-  '읽으면서 궁금한 점이나 비판할 점이 있으면 메모합니다.',
-  '에세이나 논설문 같은 긴 텍스트를 잘 이해할 수 있습니다.',
-  '복잡한 주장이나 암시된 의미를 파악하는 데 자신 있습니다.',
-  '그룹 토의에서 내 의견을 잘 표현할 수 있습니다.',
-  '다른 사람의 의견을 듣고 내 생각을 수정할 수 있습니다.',
-  '에세이나 논설문 읽는 것이 재미있습니다.',
-];
-const POST_Q = [
-  '오늘 토의에서 모호한 부분을 함께 명료화(Clarify)하는 것이 도움이 됐습니다.',
-  '다른 사람의 질문을 듣고 새로운 관점을 발견했습니다.',
-  '공동 요약을 통해 텍스트 전체 구조를 더 잘 파악했습니다.',
-  '토의 후 에세이 읽기에 더 자신감이 생겼습니다.',
-  '그룹 토의에서 내 기여도가 높았다고 느낍니다.',
-  '텍스트 근거(페이지 번호 등)를 제시하며 논의하는 것이 효과적이었습니다.',
-  '서로의 의견을 연결·확장하며 새로운 이해를 만들었습니다.',
-  '앞으로도 이런 공동 읽기 활동을 하고 싶습니다.',
-];
 const CODES = {
-  CLA:{label:'명료화',cat:'PISA Locate',color:'#3b82f6'},
-  QUE:{label:'탐구질문',cat:'PISA Evaluate',color:'#16a34a'},
-  SUM:{label:'통합요약',cat:'PISA Integrate',color:'#b45309'},
-  EVA:{label:'비판평가',cat:'PISA Reflect',color:'#c0392b'},
-  REF:{label:'연결반성',cat:'PISA Reflect',color:'#7c3aed'},
-  EVI:{label:'근거제시',cat:'CCSS Evidence',color:'#0f766e'},
-  EXT:{label:'확장연결',cat:'CCSS Shared',color:'#0891b2'},
-  NEG:{label:'협상조정',cat:'CCSS Negotiation',color:'#dc2626'},
-  MET:{label:'메타담화',cat:'Team Coord',color:'#64748b'},
+  CLA:{label:'명료화',  desc:'모호한 부분 탐색·해결',      color:'#3b82f6', cat:'PISA Locate'},
+  QUE:{label:'탐구질문',desc:'공동 탐색 유도 질문',         color:'#16a34a', cat:'PISA Evaluate'},
+  SUM:{label:'통합요약',desc:'텍스트 연결·요약',            color:'#b45309', cat:'PISA Integrate'},
+  EVA:{label:'비판평가',desc:'주장·근거 비판적 평가',       color:'#c0392b', cat:'PISA Reflect'},
+  REF:{label:'연결반성',desc:'텍스트↔경험·세계 연결',       color:'#7c3aed', cat:'PISA Reflect'},
+  EVI:{label:'근거제시',desc:'페이지·문단 등 근거 인용',    color:'#0f766e', cat:'CCSS Evidence'},
+  EXT:{label:'확장연결',desc:'타인 아이디어 수용·발전',     color:'#0891b2', cat:'CCSS Shared'},
+  NEG:{label:'협상조정',desc:'반박·대안 제시·합의 탐색',   color:'#dc2626', cat:'CCSS Negotiation'},
+  MET:{label:'메타담화',desc:'역할 교대·진행 조정',         color:'#64748b', cat:'Team Coord'},
 };
 
 // ══════════════════════════════════════
-// 상태
+// 전역 상태
 // ══════════════════════════════════════
-const STEPS = ['pre','disc','post'];
 let G = {
-  name:'', team:'', range:'', step:'pre',
+  name:'', team:'', range:'',
   code: localStorage.getItem('rd_code')||'READ1',
   apiKey: localStorage.getItem('rd_key')||'',
   sheetsUrl: localStorage.getItem('rd_sheets')||'',
-  preSurvey: new Array(8).fill(0),
-  postSurvey: new Array(8).fill(0),
-  done: {pre:false, disc:false, post:false},
 };
-let DS = {
-  members:[], speaker:'', role:'',
-  utts:[], mic:false, recog:null, buf:'',
-  timerOn:false, timerRef:null, elapsed:0, cycle:1,
+let REC = {
+  on:false, recog:null, buf:'', utts:[], analysisResult:null
 };
 
 // ══════════════════════════════════════
@@ -481,380 +412,373 @@ function showPage(id){
   document.getElementById(id).classList.add('active');
 }
 function goLogin(){ showPage('login-page'); }
-
 function switchTab(t){
   document.getElementById('tab-s').style.display = t==='s'?'block':'none';
   document.getElementById('tab-t').style.display = t==='t'?'block':'none';
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('on', (i===0&&t==='s')||(i===1&&t==='t')));
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('on',(i===0&&t==='s')||(i===1&&t==='t')));
 }
 
 // ══════════════════════════════════════
 // 로그인
 // ══════════════════════════════════════
 function studentLogin(){
-  const name = document.getElementById('s-name').value.trim();
-  const code = document.getElementById('s-code').value.trim().toUpperCase();
-  const team = document.getElementById('s-team').value;
-  const range = document.getElementById('s-range').value.trim();
-  if(!name){ toast('이름을 입력하세요'); return; }
-  if(code !== G.code){ toast('입장 코드가 올바르지 않습니다'); return; }
-  if(!team){ toast('팀 번호를 선택하세요'); return; }
+  const name=document.getElementById('s-name').value.trim();
+  const code=document.getElementById('s-code').value.trim().toUpperCase();
+  const team=document.getElementById('s-team').value;
+  const range=document.getElementById('s-range').value.trim();
+  if(!name){toast('이름을 입력해주세요');return}
+  if(code!==G.code){toast('입장 코드가 올바르지 않습니다');return}
+  if(!team){toast('팀 번호를 선택해주세요');return}
   G.name=name; G.team=team; G.range=range||'미입력';
-  G.preSurvey=new Array(8).fill(0);
-  G.postSurvey=new Array(8).fill(0);
-  G.done={pre:false,disc:false,post:false};
-  document.getElementById('badge-name').textContent = '— '+name+' ('+team+')';
-  buildSurvey('pre-wrap', PRE_Q, 'pre');
-  buildSurvey('post-wrap', POST_Q, 'post');
+  REC={on:false,recog:null,buf:'',utts:[],analysisResult:null};
+  document.getElementById('top-info').textContent=name+' · '+team;
+  document.getElementById('disp-team').textContent=team;
+  document.getElementById('disp-range').textContent=range||'미입력';
+  document.getElementById('utt-list').innerHTML='<div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">녹음을 시작하면 발화가 여기에 쌓입니다</div>';
+  document.getElementById('utt-count').textContent='0';
+  document.getElementById('live-text').textContent='여기에 실시간 전사 내용이 표시됩니다…';
+  document.getElementById('live-text').classList.remove('active');
+  document.getElementById('analysis-result').style.display='none';
   showPage('student-page');
-  gotoStep('pre');
 }
-
 function teacherLogin(){
-  if(document.getElementById('t-pw').value !== 'research2025'){ toast('비밀번호 오류'); return; }
+  if(document.getElementById('t-pw').value!=='research2025'){toast('비밀번호 오류');return}
   loadTeacherSettings(); refreshData(); showPage('teacher-page');
 }
 
 // ══════════════════════════════════════
-// 단계 이동
+// 녹음 & STT
 // ══════════════════════════════════════
-function gotoStep(s){
-  G.step = s;
-  STEPS.forEach(x=>{
-    document.getElementById('step-'+x).classList.toggle('active', x===s);
-    document.getElementById('nav-'+x).classList.toggle('on', x===s);
-  });
-  const i = STEPS.indexOf(s);
-  document.getElementById('btn-prev').style.display = i>0?'':'none';
-  document.getElementById('btn-next').style.display = i<STEPS.length-1?'':'none';
-  document.getElementById('btn-submit').style.display = i===STEPS.length-1?'inline-block':'none';
-  updateDots();
+function toggleRec(){
+  if(REC.on) stopRec(); else startRec();
 }
-function nextStep(){
-  const i = STEPS.indexOf(G.step);
-  if(i<STEPS.length-1){ G.done[G.step]=true; gotoStep(STEPS[i+1]); updateDots(); }
+function startRec(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('Chrome 브라우저에서만 음성 인식이 가능합니다');return}
+  REC.recog=new SR();
+  REC.recog.lang='ko-KR';
+  REC.recog.continuous=true;
+  REC.recog.interimResults=true;
+
+  REC.recog.onresult=e=>{
+    let final='',interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    if(final){
+      REC.buf+=final;
+      document.getElementById('rec-status').textContent='✅ 인식됨: '+final.slice(0,30)+(final.length>30?'…':'');
+    }
+    const lt=document.getElementById('live-text');
+    lt.textContent=REC.buf+(interim?' '+interim+'…':'');
+    lt.classList.add('active');
+  };
+
+  REC.recog.onerror=e=>{
+    if(e.error==='not-allowed'){toast('마이크 권한을 허용해주세요');stopRec();return}
+    if(e.error!=='no-speech') document.getElementById('rec-status').textContent='인식 오류: '+e.error;
+  };
+
+  // 자동 재시작 (30초 제한 방지)
+  REC.recog.onend=()=>{ if(REC.on){ REC.recog.start(); } };
+
+  REC.recog.start();
+  REC.on=true;
+
+  const btn=document.getElementById('rec-btn');
+  btn.className='rec-btn recording';
+  document.getElementById('rec-btn-text').textContent='녹음 중지';
+  document.getElementById('rec-status').textContent='🔴 녹음 중 — 팀원들과 자유롭게 이야기하세요';
+  toast('🎙 녹음 시작됐습니다');
 }
-function prevStep(){
-  const i = STEPS.indexOf(G.step);
-  if(i>0) gotoStep(STEPS[i-1]);
-}
-function updateDots(){
-  STEPS.forEach(s=>{
-    const d = document.getElementById('dot-'+s);
-    d.className = 'dot';
-    if(s===G.step) d.classList.add('cur');
-    else if(G.done[s]) d.classList.add('done');
-  });
+
+function stopRec(){
+  if(REC.recog){REC.recog.stop();}
+  REC.on=false;
+
+  // 버퍼에 내용이 있으면 발화로 저장
+  const text=REC.buf.trim();
+  if(text){
+    REC.utts.push({id:Date.now(), text, time:new Date().toLocaleTimeString('ko-KR'), code:null, reason:null, src:'stt'});
+    REC.buf='';
+    renderUtts();
+  }
+
+  const btn=document.getElementById('rec-btn');
+  btn.className='rec-btn idle';
+  document.getElementById('rec-btn-text').textContent='녹음 시작';
+  document.getElementById('rec-status').textContent='녹음이 종료됐습니다. 필요하면 다시 녹음할 수 있습니다.';
+  toast('⏹ 녹음 종료 — '+REC.utts.length+'개 발화 기록됨');
 }
 
 // ══════════════════════════════════════
-// 설문 생성
+// 발화 관리
 // ══════════════════════════════════════
-function buildSurvey(wrapId, qs, prefix){
-  const wrap = document.getElementById(wrapId);
-  wrap.innerHTML = qs.map((q,qi)=>`
-    <div class="q-card">
-      <div class="q-num">문항 ${qi+1}</div>
-      <div class="q-text">${q}</div>
-      <div class="likert">
-        ${[1,2,3,4,5].map(v=>`
-          <label>
-            <input type="radio" name="${prefix}_q${qi}" value="${v}" onchange="setSurvey('${prefix}',${qi},${v})">
-            <span class="ldot"></span>
-            <span class="lval">${v}<br>${['전혀','아니다','보통','그렇다','매우'][v-1]}</span>
-          </label>`).join('')}
-      </div>
-    </div>`).join('');
-}
-function setSurvey(prefix, qi, val){
-  if(prefix==='pre') G.preSurvey[qi]=val;
-  else G.postSurvey[qi]=val;
+function addManual(){
+  const ta=document.getElementById('manual-ta');
+  const text=ta.value.trim(); if(!text) return;
+  REC.utts.push({id:Date.now(), text, time:new Date().toLocaleTimeString('ko-KR'), code:null, reason:null, src:'manual'});
+  ta.value='';
+  renderUtts();
+  toast('✅ 발화 추가됨');
 }
 
-// ══════════════════════════════════════
-// 토의 — 팀원 & 역할
-// ══════════════════════════════════════
-function addMember(){
-  const inp = document.getElementById('member-input');
-  const name = inp.value.trim();
-  if(!name||DS.members.includes(name)) return;
-  DS.members.push(name); inp.value='';
-  renderMembers(); renderSpeakers();
-}
-function removeMember(name){
-  DS.members = DS.members.filter(m=>m!==name);
-  renderMembers(); renderSpeakers();
-}
-function renderMembers(){
-  document.getElementById('member-tags').innerHTML = DS.members.map(m=>
-    `<span class="m-tag">${m}<button onclick="removeMember('${m}')">×</button></span>`
-  ).join('');
-}
-function renderSpeakers(){
-  const el = document.getElementById('speaker-btns');
-  if(!DS.members.length){ el.innerHTML='<span style="font-size:11px;color:var(--ink3)">오른쪽에서 팀원 추가</span>'; return; }
-  el.innerHTML = DS.members.map(m=>
-    `<button class="sp-btn${DS.speaker===m?' on':''}" onclick="pickSpeaker('${m}')">${m}</button>`
-  ).join('');
-}
-function pickSpeaker(name){
-  DS.speaker=name; renderSpeakers();
-}
-function pickRole(r){
-  DS.role=r;
-  ['C','Q','S'].forEach(x=>{ document.getElementById('rb-'+x).className='role-btn'+(x===r?' sel-'+x:''); });
-  document.getElementById('utt-ta').focus();
-}
-
-// ══════════════════════════════════════
-// 발화 입력
-// ══════════════════════════════════════
-function addUtt(){
-  const ta = document.getElementById('utt-ta');
-  const text = ta.value.trim(); if(!text) return;
-  DS.utts.push({
-    id:Date.now(), speaker:DS.speaker||'미지정', role:DS.role||'미선택',
-    text, time:new Date().toLocaleTimeString('ko-KR'), code:null, reason:null
-  });
-  ta.value=''; DS.buf='';
-  document.getElementById('mic-status').textContent='';
-  renderUtts(); updateStats();
-}
 function renderUtts(){
-  const el = document.getElementById('utt-list');
-  const cnt = document.getElementById('utt-count');
-  cnt.textContent = DS.utts.length;
-  if(!DS.utts.length){ el.innerHTML='<div style="font-size:11px;color:var(--ink3);text-align:center;padding:20px">아직 발화가 없습니다</div>'; return; }
-  const rc={C:'#3b82f6',Q:'#16a34a',S:'#b45309'};
-  el.innerHTML = DS.utts.map((u,i)=>{
-    const ci = u.code&&CODES[u.code]?CODES[u.code]:null;
+  const el=document.getElementById('utt-list');
+  document.getElementById('utt-count').textContent=REC.utts.length;
+  if(!REC.utts.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--ink3);text-align:center;padding:20px">녹음을 시작하면 발화가 여기에 쌓입니다</div>';
+    return;
+  }
+  el.innerHTML=REC.utts.map((u,i)=>{
+    const ci=u.code&&CODES[u.code]?CODES[u.code]:null;
     return `<div class="utt-item">
       <div class="utt-meta">
-        <span class="utt-spk">${u.speaker}</span>
-        <span class="role-tag" style="background:${rc[u.role]||'#a8a29e'}">${u.role}</span>
-        ${ci?`<span class="code-tag" style="background:${ci.color}">${u.code}</span>`:''}
         <span class="utt-time">${u.time}</span>
-        <button onclick="delUtt(${i})" style="background:none;border:none;color:var(--ink3);cursor:pointer;margin-left:4px;font-size:12px">×</button>
+        <span style="font-size:10px;color:${u.src==='stt'?'var(--teal)':'var(--pur)'}">${u.src==='stt'?'🎙 STT':'✏️ 수동'}</span>
+        ${ci?`<span class="code-badge" style="background:${ci.color}">${u.code} ${ci.label}</span>`:''}
+        <button class="del-btn" onclick="delUtt(${i})">×</button>
       </div>
       <div class="utt-text">${u.text}</div>
       ${u.reason?`<div class="utt-reason">→ ${u.reason}</div>`:''}
     </div>`;
   }).join('');
-  el.scrollTop = el.scrollHeight;
-}
-function delUtt(i){ DS.utts.splice(i,1); renderUtts(); updateStats(); }
-function updateStats(){
-  const el = document.getElementById('stats-area');
-  const total = DS.utts.length;
-  if(!total){ el.innerHTML='<span style="font-size:11px;color:var(--ink3)">발화 추가 시 표시</span>'; return; }
-  const C=DS.utts.filter(u=>u.role==='C').length, Q=DS.utts.filter(u=>u.role==='Q').length, S=DS.utts.filter(u=>u.role==='S').length;
-  el.innerHTML=`<div class="stat-grid">
-    ${[['전체',total,'var(--ink)'],['C',C,'#3b82f6'],['Q',Q,'#16a34a'],['S',S,'#b45309']].map(([l,v,c])=>
-      `<div class="stat-item"><div class="stat-num" style="color:${c}">${v}</div><div class="stat-lbl">${l}</div></div>`).join('')}
-  </div>`;
+  el.scrollTop=el.scrollHeight;
 }
 
-// ══════════════════════════════════════
-// 타이머
-// ══════════════════════════════════════
-function toggleTimer(){
-  if(DS.timerOn){ clearInterval(DS.timerRef); DS.timerOn=false; document.getElementById('timer-btn').textContent='▶ 시작'; document.getElementById('timer-btn').style.background='var(--grn)'; }
-  else{ DS.timerOn=true; const t0=Date.now()-DS.elapsed*1000; DS.timerRef=setInterval(()=>{
-    DS.elapsed=Math.floor((Date.now()-t0)/1000);
-    const m=String(Math.floor(DS.elapsed/60)).padStart(2,'0'), s=String(DS.elapsed%60).padStart(2,'0');
-    document.getElementById('timer-num').textContent=m+':'+s;
-    if(DS.elapsed>0&&DS.elapsed%480===0){ DS.cycle++; document.getElementById('cycle-lbl').textContent='사이클 '+DS.cycle; toast('💡 역할을 교대해보세요!'); }
-  },1000);
-  document.getElementById('timer-btn').textContent='⏹ 중지'; document.getElementById('timer-btn').style.background='var(--red)'; }
-}
-
-// ══════════════════════════════════════
-// 음성 인식
-// ══════════════════════════════════════
-function toggleMic(){
-  if(DS.mic) stopMic(); else startMic();
-}
-function startMic(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){ toast('Chrome에서만 음성 인식 가능'); return; }
-  DS.recog=new SR(); DS.recog.lang='ko-KR'; DS.recog.continuous=true; DS.recog.interimResults=true;
-  DS.recog.onresult=e=>{
-    let f='',interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++) e.results[i].isFinal?f+=e.results[i][0].transcript:interim+=e.results[i][0].transcript;
-    if(f) DS.buf+=f;
-    document.getElementById('utt-ta').value=DS.buf+(interim?' '+interim+'…':'');
-    document.getElementById('mic-status').textContent=interim?'🎙 인식 중…':'';
-  };
-  DS.recog.onerror=e=>{ if(e.error!=='no-speech') stopMic(); };
-  DS.recog.onend=()=>{ if(DS.mic) DS.recog.start(); };
-  DS.recog.start(); DS.mic=true;
-  document.getElementById('mic-btn').style.background='var(--red)'; document.getElementById('mic-btn').textContent='⏹';
-  toast('🎙 녹음 시작');
-}
-function stopMic(){
-  if(DS.recog) DS.recog.stop(); DS.mic=false;
-  document.getElementById('mic-btn').style.background='var(--grn)'; document.getElementById('mic-btn').textContent='🎙';
-  toast('⏹ 녹음 종료');
-}
+function delUtt(i){ REC.utts.splice(i,1); renderUtts(); }
 
 // ══════════════════════════════════════
 // Claude API
 // ══════════════════════════════════════
-async function callClaude(msgs, sys, maxT=800){
+async function callClaude(msgs, sys, maxT=2000){
   const key=G.apiKey||localStorage.getItem('rd_key')||'';
-  if(!key) throw new Error('NO_KEY');
+  if(!key) throw new Error('API 키가 설정되지 않았습니다. 연구자 패널에서 API 키를 먼저 저장해주세요.');
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxT,system:sys,messages:msgs})
   });
-  if(!res.ok) throw new Error('API_'+res.status);
+  if(!res.ok){const d=await res.json().catch(()=>({})); throw new Error('API 오류 '+res.status+(d.error?': '+d.error.message:'')); }
   const d=await res.json();
   return d.content.map(c=>c.text||'').join('');
 }
 
 // ══════════════════════════════════════
-// 자동 코딩
+// 담화 분석
 // ══════════════════════════════════════
-async function runCoding(){
-  if(!DS.utts.length){ toast('발화가 없습니다'); return; }
-  const btn=document.getElementById('code-btn'); btn.disabled=true; btn.textContent='분석 중…';
-  const prompt=`PISA 2025 읽기 과정 및 CCSS SL 기준으로 대학생 북클럽 토의 발화를 코딩하세요.
+async function runAnalysis(){
+  if(!REC.utts.length){toast('분석할 발화가 없습니다. 먼저 녹음하세요.');return}
+  const btn=document.getElementById('analyze-btn');
+  btn.disabled=true; btn.textContent='⏳ 분석 중…';
 
-코드 목록:
-CLA(명료화): 텍스트 모호한 부분 탐색·해결
-QUE(탐구질문): 팀 공동 탐색 유도 질문
-SUM(통합요약): 텍스트 연결·요약
-EVA(비판평가): 주장·근거 비판적 평가
-REF(연결반성): 텍스트와 경험·세계 연결
-EVI(근거제시): 페이지·문단 등 근거 인용
-EXT(확장연결): 타인 아이디어 수용·발전
-NEG(협상조정): 반박·합의 탐색
-MET(메타담화): 역할 교대·진행 조정
+  const prompt=`당신은 읽기 교육 연구자입니다. PISA 2025 읽기 과정 및 CCSS Speaking & Listening 기준으로 대학생 에세이 북클럽 토의 발화를 분석합니다.
 
-발화 목록:
-${DS.utts.map((u,i)=>`[${i}] ${u.speaker}(${u.role}): ${u.text}`).join('\n')}
+【분석 코드】
+CLA(명료화): 텍스트의 모호한 부분이나 어려운 개념을 밝히는 발화
+QUE(탐구질문): 팀 공동 탐색을 유도하는 비판적 질문
+SUM(통합요약): 텍스트 내용을 연결하거나 전체를 요약하는 발화
+EVA(비판평가): 저자 주장이나 근거의 타당성을 평가하는 발화
+REF(연결반성): 텍스트를 자신의 경험·세계와 연결하는 발화
+EVI(근거제시): 페이지·문단 등 텍스트 근거를 직접 인용하는 발화
+EXT(확장연결): 타인 아이디어를 수용하고 발전시키는 발화
+NEG(협상조정): 반박·대안 제시·합의 탐색 발화
+MET(메타담화): 토의 진행·역할 조정 관련 발화
 
-JSON 배열만 응답:
-[{"idx":0,"code":"코드","reason":"15자이내"},...]`;
+【발화 목록】
+${REC.utts.map((u,i)=>`[${i}] ${u.text}`).join('\n')}
+
+【출력 형식】
+JSON만 응답하세요:
+[{"idx":0,"code":"코드","reason":"담화 기능 20자 이내"},...]`;
+
   try{
-    const raw=await callClaude([{role:'user',content:prompt}],'읽기 교육 담화 분석 전문가. JSON 배열만 응답.',2000);
+    const raw=await callClaude([{role:'user',content:prompt}],'읽기 교육 담화 분석 전문가. 반드시 JSON 배열만 응답.',2500);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    parsed.forEach(item=>{ if(DS.utts[item.idx]){ DS.utts[item.idx].code=item.code; DS.utts[item.idx].reason=item.reason; } });
-    renderUtts(); toast('✅ 자동 코딩 완료!');
-  }catch(e){ toast('코딩 오류: '+e.message); }
-  btn.disabled=false; btn.textContent='🔬 자동 코딩 실행';
+    parsed.forEach(item=>{
+      if(REC.utts[item.idx]){
+        REC.utts[item.idx].code=item.code;
+        REC.utts[item.idx].reason=item.reason;
+      }
+    });
+    REC.analysisResult=parsed;
+    renderUtts();
+    renderAnalysisResult();
+    toast('✅ 분석 완료!');
+  }catch(e){
+    toast('분석 오류: '+e.message);
+    document.getElementById('analyze-btn').textContent='⚠️ 오류 — 다시 시도';
+  }
+  btn.disabled=false;
+  if(btn.textContent==='⏳ 분석 중…') btn.textContent='🔬 담화 분석 실행하기';
 }
 
-// ══════════════════════════════════════
-// AI 도우미
-// ══════════════════════════════════════
-async function sendAI(){
-  const ta=document.getElementById('ai-ta');
-  const text=ta.value.trim(); if(!text) return;
-  ta.value='';
-  const msgs=document.getElementById('ai-msgs');
-  msgs.insertAdjacentHTML('beforeend',`<div class="msg u">${text}</div>`);
-  const tid='t'+Date.now();
-  msgs.insertAdjacentHTML('beforeend',`<div class="typing" id="${tid}"><span></span><span></span><span></span></div>`);
-  msgs.scrollTop=msgs.scrollHeight;
-  document.getElementById('ai-send').disabled=true;
-  let reply='';
-  try{ reply=await callClaude([{role:'user',content:text}],`한국 대학생의 에세이 읽기 토의를 돕는 AI 도우미. 텍스트 구간: ${G.range}. 한국어 300자 이내로 답해라.`); }
-  catch(e){ reply=e.message==='NO_KEY'?'⚠️ API 키가 없습니다. 연구자에게 문의하세요.':'❌ 오류: '+e.message; }
-  document.getElementById(tid)?.remove();
-  msgs.insertAdjacentHTML('beforeend',`<div class="msg a"><div class="lbl">Claude AI</div>${reply.replace(/\n/g,'<br>')}</div>`);
-  msgs.scrollTop=msgs.scrollHeight;
-  document.getElementById('ai-send').disabled=false;
+function renderAnalysisResult(){
+  const el=document.getElementById('analysis-result');
+  const content=document.getElementById('result-content');
+  const total=REC.utts.filter(u=>u.code).length;
+  if(!total){el.style.display='none';return}
+
+  const counts={};
+  REC.utts.forEach(u=>{if(u.code)counts[u.code]=(counts[u.code]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+
+  content.innerHTML=`
+    <div style="font-size:12px;color:var(--ink2);margin-bottom:12px">총 <strong>${total}</strong>개 발화 분석됨</div>
+    ${sorted.map(([code,cnt])=>{
+      const ci=CODES[code]; if(!ci)return'';
+      const pct=Math.round(cnt/total*100);
+      return`<div class="code-row">
+        <span style="min-width:70px;font-weight:700;color:${ci.color}">${code}</span>
+        <span style="min-width:60px;font-size:11px;color:var(--ink2)">${ci.label}</span>
+        <div class="code-bar-wrap"><div class="code-bar" style="width:${pct}%;background:${ci.color}"></div></div>
+        <span style="min-width:40px;text-align:right">${cnt}회 (${pct}%)</span>
+      </div>`;
+    }).join('')}
+  `;
+  el.style.display='block';
 }
 
 // ══════════════════════════════════════
 // 제출
 // ══════════════════════════════════════
-async function submitAll(){
-  const preEmpty=G.preSurvey.some(v=>v===0);
-  const postEmpty=G.postSurvey.some(v=>v===0);
-  if(preEmpty||postEmpty){ if(!confirm('미응답 설문 항목이 있습니다. 제출하시겠습니까?')) return; }
+async function submitData(){
+  if(!REC.utts.length){toast('발화 기록이 없습니다. 먼저 토의를 진행해주세요.');return}
   toast('📊 저장 중…');
-  const C=DS.utts.filter(u=>u.role==='C').length, Q=DS.utts.filter(u=>u.role==='Q').length, S=DS.utts.filter(u=>u.role==='S').length;
-  const codes={}; DS.utts.forEach(u=>{ if(u.code) codes[u.code]=(codes[u.code]||0)+1; });
-  const topCode=Object.entries(codes).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+
+  const counts={};
+  REC.utts.forEach(u=>{if(u.code)counts[u.code]=(counts[u.code]||0)+1;});
+  const topCode=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'미분석';
+
   const payload={
     이름:G.name, 팀:G.team, 구간:G.range,
-    사전Q1:G.preSurvey[0], 사전Q2:G.preSurvey[1], 사전Q3:G.preSurvey[2], 사전Q4:G.preSurvey[3],
-    사전Q5:G.preSurvey[4], 사전Q6:G.preSurvey[5], 사전Q7:G.preSurvey[6], 사전Q8:G.preSurvey[7],
-    사전평균:(G.preSurvey.reduce((a,b)=>a+b,0)/8).toFixed(2),
-    발화수:DS.utts.length, C수:C, Q수:Q, S수:S, 주코드:topCode,
-    코드JSON:JSON.stringify(DS.utts.map(u=>({sp:u.speaker,r:u.role,c:u.code||'',t:u.text.slice(0,80)}))).slice(0,2000),
-    사후Q1:G.postSurvey[0], 사후Q2:G.postSurvey[1], 사후Q3:G.postSurvey[2], 사후Q4:G.postSurvey[3],
-    사후Q5:G.postSurvey[4], 사후Q6:G.postSurvey[5], 사후Q7:G.postSurvey[6], 사후Q8:G.postSurvey[7],
-    사후평균:(G.postSurvey.reduce((a,b)=>a+b,0)/8).toFixed(2),
+    발화수:REC.utts.length,
+    코드분포:JSON.stringify(counts),
+    분석JSON:JSON.stringify(REC.utts.map(u=>({t:u.text.slice(0,80),c:u.code||'',r:u.reason||''}))).slice(0,3000),
+    주요코드:topCode,
     제출시각:new Date().toLocaleString('ko-KR'),
   };
+
+  // localStorage
   const subs=JSON.parse(localStorage.getItem('rd_subs')||'[]');
   const idx=subs.findIndex(s=>s.이름===G.name&&s.팀===G.team);
   if(idx>=0) subs[idx]=payload; else subs.push(payload);
   localStorage.setItem('rd_subs',JSON.stringify(subs));
+
+  // Sheets
   const url=G.sheetsUrl||localStorage.getItem('rd_sheets')||'';
-  if(url){ try{ await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); }catch(e){} }
-  toast('✅ 제출 완료! 수고했어요 🎉');
+  if(url){
+    try{
+      await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      toast('✅ 제출 완료! Google Sheets에 저장됐습니다 🎉');
+    }catch(e){ toast('✅ 저장 완료 (Sheets 전송 오류: '+e.message+')'); }
+  }else{
+    toast('✅ 제출 완료! 수고했습니다 🎉');
+  }
+}
+
+// ══════════════════════════════════════
+// 연구자 패널
+// ══════════════════════════════════════
+function loadTeacherSettings(){
+  const k=localStorage.getItem('rd_key');
+  if(k){ G.apiKey=k; const el=document.getElementById('api-input'); if(el) el.value=k; document.getElementById('api-status').textContent='✅ API 키 저장됨'; }
+  const c=localStorage.getItem('rd_code');
+  if(c){ G.code=c; document.getElementById('code-display').textContent=c; }
+  const s=localStorage.getItem('rd_sheets');
+  if(s){ G.sheetsUrl=s; const el=document.getElementById('sheets-input'); if(el) el.value=s; document.getElementById('sheets-status').textContent='✅ 연동됨'; }
+}
+
+function saveApiKey(){
+  const k=document.getElementById('api-input').value.trim();
+  if(!k||!k.startsWith('sk-ant-')){ toast('올바른 API 키 형식이 아닙니다 (sk-ant- 로 시작)'); return; }
+  G.apiKey=k; localStorage.setItem('rd_key',k);
+  document.getElementById('api-status').textContent='✅ API 키 저장됨';
+  toast('✅ API 키 저장됨 — 학생 페이지에도 자동 적용됩니다');
+}
+
+async function testApiKey(){
+  const k=document.getElementById('api-input').value.trim()||G.apiKey;
+  if(!k){ toast('API 키를 먼저 입력하세요'); return; }
+  G.apiKey=k;
+  document.getElementById('api-status').textContent='테스트 중…';
+  try{
+    await callClaude([{role:'user',content:'안녕'}],'한 단어로만 답해: 네',10);
+    document.getElementById('api-status').textContent='✅ 연결 성공!';
+    toast('✅ API 연결 성공!');
+  }catch(e){
+    document.getElementById('api-status').textContent='❌ 실패: '+e.message;
+    toast('❌ 연결 실패');
+  }
+}
+
+function saveSheets(){
+  const u=document.getElementById('sheets-input').value.trim();
+  if(!u){ toast('URL을 입력하세요'); return; }
+  G.sheetsUrl=u; localStorage.setItem('rd_sheets',u);
+  document.getElementById('sheets-status').textContent='✅ 연동됨';
+  toast('✅ Sheets URL 저장됨');
+}
+
+function newCode(){
+  G.code=[...'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'].sort(()=>Math.random()-.5).slice(0,6).join('');
+  localStorage.setItem('rd_code',G.code);
+  document.getElementById('code-display').textContent=G.code;
+  toast('새 코드: '+G.code);
+}
+function copyCode(){ navigator.clipboard.writeText(G.code).then(()=>toast('복사됨: '+G.code)); }
+
+function refreshData(){ renderTable(); }
+function clearData(){ if(confirm('전체 데이터를 초기화하시겠습니까?')){ localStorage.removeItem('rd_subs'); renderTable(); toast('초기화됨'); } }
+
+function renderTable(){
+  const data=JSON.parse(localStorage.getItem('rd_subs')||'[]');
+  const sum=document.getElementById('data-summary');
+  if(data.length){
+    sum.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+      ${[['총학생',data.length],['총발화',data.reduce((a,r)=>a+(r.발화수||0),0)],['제출팀',new Set(data.map(r=>r.팀)).size]].map(([l,v])=>
+        `<div style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center"><div style="font-size:20px;font-weight:700">${v}</div><div style="font-size:10px;color:var(--ink2)">${l}</div></div>`).join('')}
+    </div>`;
+  }
+  const tb=document.getElementById('data-tbody');
+  if(!data.length){ tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--ink3);padding:20px">없음</td></tr>'; return; }
+  tb.innerHTML=data.map(r=>`<tr>
+    <td><strong>${r.이름||''}</strong></td>
+    <td>${r.팀||''}</td>
+    <td style="font-size:11px;color:var(--ink2)">${r.구간||''}</td>
+    <td>${r.발화수||0}</td>
+    <td><span style="font-size:11px;font-weight:700;background:var(--pur-lt);color:var(--pur);padding:2px 8px;border-radius:8px">${r.주요코드||'-'}</span></td>
+    <td>${r.제출시각?'✅':'-'}</td>
+  </tr>`).join('');
 }
 
 // ══════════════════════════════════════
 // CSV
 // ══════════════════════════════════════
-function downloadDiscCSV(){
-  if(!DS.utts.length){ toast('발화가 없습니다'); return; }
-  const H=['팀','발화자','역할','담화코드','코드명','이유','내용','시간'];
-  const rows=DS.utts.map(u=>{ const ci=u.code&&CODES[u.code]?CODES[u.code]:null; return [G.team,u.speaker,u.role,u.code||'',ci?ci.label:'',u.reason||'',u.text,u.time]; });
-  dl([H,...rows],'토의발화_'+G.team);
-}
 function downloadCSV(){
   const data=JSON.parse(localStorage.getItem('rd_subs')||'[]');
-  if(!data.length){ toast('데이터 없음'); return; }
-  const H=['이름','팀','구간','사전Q1','사전Q2','사전Q3','사전Q4','사전Q5','사전Q6','사전Q7','사전Q8','사전평균','발화수','C수','Q수','S수','주코드','사후Q1','사후Q2','사후Q3','사후Q4','사후Q5','사후Q6','사후Q7','사후Q8','사후평균','제출시각'];
-  dl([H,...data.map(r=>H.map(k=>r[k]||''))],'읽기토의연구');
-}
-function dl(rows,name){
-  const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download=name+'_'+new Date().toLocaleDateString('ko-KR').replace(/[\s.]/g,'')+'.csv'; a.click();
-  toast('📥 다운로드 완료');
-}
-
-// ══════════════════════════════════════
-// 연구자
-// ══════════════════════════════════════
-function loadTeacherSettings(){
-  const k=localStorage.getItem('rd_key'); if(k){ G.apiKey=k; const el=document.getElementById('api-input'); if(el) el.value=k; document.getElementById('api-status').textContent='✅ 저장됨'; }
-  const c=localStorage.getItem('rd_code'); if(c){ G.code=c; document.getElementById('code-display').textContent=c; }
-  const s=localStorage.getItem('rd_sheets'); if(s){ G.sheetsUrl=s; const el=document.getElementById('sheets-input'); if(el) el.value=s; document.getElementById('sheets-status').textContent='✅ 연동됨'; }
-}
-function saveApiKey(){ const k=document.getElementById('api-input').value.trim(); if(!k||!k.startsWith('sk-ant-')){ toast('올바른 API 키가 아닙니다'); return; } G.apiKey=k; localStorage.setItem('rd_key',k); document.getElementById('api-status').textContent='✅ 저장됨'; toast('✅ API 키 저장됨'); }
-async function testApiKey(){ try{ await callClaude([{role:'user',content:'안녕'}],'한 단어로만: 네',10); document.getElementById('api-status').textContent='✅ 연결 성공!'; toast('✅ 연결 성공!'); }catch(e){ toast('❌ 실패: '+e.message); } }
-function saveSheets(){ const u=document.getElementById('sheets-input').value.trim(); if(!u){ toast('URL을 입력하세요'); return; } G.sheetsUrl=u; localStorage.setItem('rd_sheets',u); document.getElementById('sheets-status').textContent='✅ 연동됨'; toast('✅ Sheets URL 저장됨'); }
-function newCode(){ G.code=[...'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'].sort(()=>Math.random()-.5).slice(0,6).join(''); localStorage.setItem('rd_code',G.code); document.getElementById('code-display').textContent=G.code; toast('새 코드: '+G.code); }
-function copyCode(){ navigator.clipboard.writeText(G.code).then(()=>toast('복사됨: '+G.code)); }
-function refreshData(){ renderTable(); }
-function clearData(){ if(confirm('전체 초기화?')){ localStorage.removeItem('rd_subs'); renderTable(); toast('초기화됨'); } }
-function renderTable(){
-  const data=JSON.parse(localStorage.getItem('rd_subs')||'[]');
-  const sum=document.getElementById('data-summary');
-  if(data.length){ sum.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">${[['총학생',data.length],['총발화',data.reduce((a,r)=>a+(r.발화수||0),0)],['사전평균',(data.reduce((a,r)=>a+parseFloat(r.사전평균||0),0)/data.length).toFixed(2)],['사후평균',(data.reduce((a,r)=>a+parseFloat(r.사후평균||0),0)/data.length).toFixed(2)]].map(([l,v])=>`<div style="background:var(--bg);border-radius:var(--rs);padding:8px;text-align:center"><div style="font-size:18px;font-weight:700">${v}</div><div style="font-size:10px;color:var(--ink2)">${l}</div></div>`).join('')}</div>`; }
-  const tb=document.getElementById('data-tbody');
-  if(!data.length){ tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--ink3);padding:20px">없음</td></tr>'; return; }
-  tb.innerHTML=data.map(r=>`<tr>
-    <td><strong>${r.이름||''}</strong></td><td>${r.팀||''}</td><td style="font-size:11px">${r.구간||''}</td>
-    <td style="font-weight:700">${r.사전평균||'-'}</td><td>${r.발화수||0}</td>
-    <td style="color:#3b82f6">${r.C수||0}</td><td style="color:#16a34a">${r.Q수||0}</td><td style="color:#b45309">${r.S수||0}</td>
-    <td style="font-weight:700">${r.사후평균||'-'}</td><td>${r.제출시각?'✅':'-'}</td>
-  </tr>`).join('');
+  if(!data.length){ toast('데이터가 없습니다'); return; }
+  const H=['이름','팀','구간','발화수','주요코드','코드분포','제출시각'];
+  const rows=data.map(r=>H.map(k=>r[k]||''));
+  const csv='\uFEFF'+[H,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='읽기토의_'+new Date().toLocaleDateString('ko-KR').replace(/[\s.]/g,'')+'.csv';
+  a.click();
+  toast('📥 CSV 다운로드 완료');
 }
 
 // ══════════════════════════════════════
 // 토스트
 // ══════════════════════════════════════
 let _tt;
-function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),3000); }
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),3200); }
 
 // 초기화
 loadTeacherSettings();
