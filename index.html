@@ -629,32 +629,96 @@ function pickSpeaker(name){ D.speaker=name; renderSpeakerBtns(); }
 // ══════════════════════════════════════
 // 녹음 & STT
 // ══════════════════════════════════════
+// 모바일 감지
+function isMobile(){
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
 function toggleRec(){ if(D.recOn) stopRec(); else startRec(); }
+
 function startRec(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){toast('Chrome 브라우저에서만 음성 인식이 가능합니다');return}
-  D.recog=new SR(); D.recog.lang='ko-KR'; D.recog.continuous=true; D.recog.interimResults=true;
+  if(!SR){toast('음성 인식이 지원되지 않습니다. Chrome을 사용해주세요.');return}
+
+  const mobile=isMobile();
+  D.recog=new SR();
+  D.recog.lang='ko-KR';
+  // 모바일: continuous=false (중복 방지), PC: true
+  D.recog.continuous=!mobile;
+  D.recog.interimResults=true;
+
+  // 중복 방지용: 마지막으로 처리한 resultIndex 기억
+  let lastProcessedIndex=-1;
+  // 중복 텍스트 필터: 직전 final과 동일하면 무시
+  let lastFinalText='';
+
   D.recog.onresult=e=>{
-    let final='',interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal) final+=e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
+    let final='', interim='';
+
+    if(mobile){
+      // 모바일: resultIndex가 0으로 리셋되는 경우 대비
+      // 전체 results를 순회하되 이미 처리한 인덱스 건너뜀
+      for(let i=0;i<e.results.length;i++){
+        if(e.results[i].isFinal){
+          if(i>lastProcessedIndex){
+            final+=e.results[i][0].transcript;
+            lastProcessedIndex=i;
+          }
+        } else {
+          interim+=e.results[i][0].transcript;
+        }
+      }
+    } else {
+      // PC: 표준 방식 — resultIndex부터만 처리
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+        else interim+=e.results[i][0].transcript;
+      }
     }
-    if(final) D.liveBuf+=final;
+
+    // 중복 텍스트 필터 — 직전과 동일한 텍스트면 무시
+    if(final){
+      const cleaned=final.trim();
+      if(cleaned && cleaned!==lastFinalText){
+        D.liveBuf+=cleaned+' ';
+        lastFinalText=cleaned;
+      }
+    }
+
     const lb=document.getElementById('live-box');
-    lb.textContent=D.liveBuf+(interim?' '+interim+'…':'');
+    lb.textContent=D.liveBuf.trim()+(interim?' '+interim+'…':'');
     lb.classList.add('on');
   };
-  D.recog.onerror=e=>{ if(e.error==='not-allowed'){toast('마이크 권한을 허용해주세요');stopRec();} };
-  D.recog.onend=()=>{ if(D.recOn) D.recog.start(); };
-  D.recog.start(); D.recOn=true;
+
+  D.recog.onerror=e=>{
+    if(e.error==='not-allowed'){toast('마이크 권한을 허용해주세요');stopRec();return}
+    if(e.error==='no-speech') return; // 침묵은 무시
+    console.warn('STT 오류:', e.error);
+  };
+
+  D.recog.onend=()=>{
+    // 자동 재시작 (모바일도 continuous=false라 끝나면 재시작)
+    if(D.recOn){
+      lastProcessedIndex=-1; // 재시작 시 인덱스 리셋
+      setTimeout(()=>{ if(D.recOn) D.recog.start(); }, 150);
+    }
+  };
+
+  D.recog.start();
+  D.recOn=true;
+
+  const mobileNote=mobile?' <span style="font-size:10px;opacity:.7">(모바일 모드)</span>':'';
   document.getElementById('rec-btn').className='rec-btn recording';
   document.getElementById('rec-label').textContent='녹음 중지';
-  document.getElementById('rec-info').innerHTML='🔴 <strong>녹음 중</strong> — 자유롭게 이야기하세요<br><span style="font-size:11px">말이 끝나면 발화자 선택 후 저장하세요</span>';
-  toast('🎙 녹음 시작');
+  document.getElementById('rec-info').innerHTML=
+    '🔴 <strong>녹음 중</strong>'+mobileNote+' — 자유롭게 이야기하세요<br>'+
+    '<span style="font-size:11px">말이 끝나면 발화자 선택 후 저장하세요</span>';
+  toast('🎙 녹음 시작'+(mobile?' (모바일 모드)':''));
 }
+
 function stopRec(){
-  if(D.recog) D.recog.stop(); D.recOn=false;
+  if(D.recog){ try{ D.recog.stop(); }catch(e){} }
+  D.recOn=false;
   document.getElementById('rec-btn').className='rec-btn idle';
   document.getElementById('rec-label').textContent='녹음 시작';
   document.getElementById('rec-info').innerHTML='녹음이 종료됐습니다<br><span style="font-size:11px">필요하면 다시 녹음할 수 있습니다</span>';
