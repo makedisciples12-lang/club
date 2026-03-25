@@ -700,7 +700,7 @@ function startRec(){
     // 자동 재시작 (모바일도 continuous=false라 끝나면 재시작)
     if(D.recOn){
       lastProcessedIndex=-1; // 재시작 시 인덱스 리셋
-      setTimeout(()=>{ if(D.recOn) D.recog.start(); }, 150);
+      setTimeout(()=>{ if(D.recOn) D.recog.start(); }, 1500);
     }
   };
 
