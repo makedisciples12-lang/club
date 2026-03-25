@@ -240,19 +240,19 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
         <div class="memo-grid">
           <div class="memo-item">
             <label>🔍 이해가 안 됐거나 명료화하고 싶은 부분</label>
-            <textarea id="memo-clarify" class="memo-ta" rows="3" placeholder="예) ○○쪽에서 '△△'라는 표현이 정확히 무슨 의미인지 모르겠음. 앞 내용과 모순되는 것 같기도 함."></textarea>
+            <textarea id="memo-clarify" oninput="saveMemo('clarify',this.value)" class="memo-ta" rows="3" placeholder="예) ○○쪽에서 '△△'라는 표현이 정확히 무슨 의미인지 모르겠음. 앞 내용과 모순되는 것 같기도 함."></textarea>
           </div>
           <div class="memo-item">
             <label>❓ 팀원들에게 던지고 싶은 질문</label>
-            <textarea id="memo-question" class="memo-ta" rows="3" placeholder="예) 저자가 왜 이 시점에 이 주장을 했을까? 다른 해석은 없을까? 우리 사회에서도 이런 현상이 있을까?"></textarea>
+            <textarea id="memo-question" oninput="saveMemo('question',this.value)" class="memo-ta" rows="3" placeholder="예) 저자가 왜 이 시점에 이 주장을 했을까? 다른 해석은 없을까? 우리 사회에서도 이런 현상이 있을까?"></textarea>
           </div>
           <div class="memo-item">
             <label>📝 핵심 내용 요약 또는 인상 깊은 부분</label>
-            <textarea id="memo-summary" class="memo-ta" rows="3" placeholder="예) 이 텍스트의 핵심 주장은 ~이고, 가장 인상 깊었던 부분은 ○○쪽 내용임. 저자는 ~를 강조함."></textarea>
+            <textarea id="memo-summary" oninput="saveMemo('summary',this.value)" class="memo-ta" rows="3" placeholder="예) 이 텍스트의 핵심 주장은 ~이고, 가장 인상 깊었던 부분은 ○○쪽 내용임. 저자는 ~를 강조함."></textarea>
           </div>
           <div class="memo-item">
             <label>💬 자유 메모 (그 외 생각, 연결되는 경험 등)</label>
-            <textarea id="memo-free" class="memo-ta" rows="3" placeholder="예) 이 내용이 최근 뉴스에서 본 ~와 비슷한 것 같음. 또는 개인적으로 ~한 경험이 생각남."></textarea>
+            <textarea id="memo-free" oninput="saveMemo('free',this.value)" class="memo-ta" rows="3" placeholder="예) 이 내용이 최근 뉴스에서 본 ~와 비슷한 것 같음. 또는 개인적으로 ~한 경험이 생각남."></textarea>
           </div>
         </div>
         <div class="guide amber">
@@ -503,6 +503,7 @@ let G = {
   sheetsUrl: localStorage.getItem('rd_sheets')||'',
   step: 'memo',
   done: {memo:false, disc:false, analyze:false, submit:false},
+  memo: {clarify:'', question:'', summary:'', free:''},
 };
 let D = {
   members: [],
@@ -541,6 +542,7 @@ function studentLogin(){
   if(!team){toast('팀 번호를 선택해주세요');return}
   G.name=name; G.team=team; G.range=range||'미입력';
   G.done={memo:false,disc:false,analyze:false,submit:false};
+  G.memo={clarify:'',question:'',summary:'',free:''};
   D={members:[],speaker:'',utts:[],recOn:false,recog:null,liveBuf:'',analysisResult:null};
   document.getElementById('d-name').textContent=name;
   document.getElementById('d-team').textContent=team;
@@ -601,6 +603,11 @@ function updateDots(){
     d.className='dot';
     if(s===G.step)d.classList.add('cur'); else if(G.done[s])d.classList.add('done');
   });
+}
+
+// 메모 실시간 저장
+function saveMemo(key, val){
+  G.memo[key] = val;
 }
 
 // ══════════════════════════════════════
@@ -909,10 +916,13 @@ JSON만 응답:
 }
 
 async function submitData(){
-  const memo_clarify=document.getElementById('memo-clarify').value||'';
-  const memo_question=document.getElementById('memo-question').value||'';
-  const memo_summary=document.getElementById('memo-summary').value||'';
-  const memo_free=document.getElementById('memo-free').value||'';
+  // DOM + G.memo 둘 다 확인 (더 안전)
+  const memo_clarify=document.getElementById('memo-clarify')?.value||G.memo.clarify||'';
+  const memo_question=document.getElementById('memo-question')?.value||G.memo.question||'';
+  const memo_summary=document.getElementById('memo-summary')?.value||G.memo.summary||'';
+  const memo_free=document.getElementById('memo-free')?.value||G.memo.free||'';
+  // G.memo도 최신으로 동기화
+  G.memo={clarify:memo_clarify, question:memo_question, summary:memo_summary, free:memo_free};
   const hasMemo=memo_clarify||memo_question||memo_summary||memo_free;
   const hasUtts=D.utts.length>0;
   if(!hasMemo&&!hasUtts){toast('메모 또는 발화 기록이 필요합니다');return}
