@@ -132,6 +132,17 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
 .bar-fill{height:100%;border-radius:3px;transition:width .5s}
 .code-cnt{min-width:60px;text-align:right;color:var(--ink2)}
 
+/* 단계별 제출 버튼 */
+.stage-submit-btn{
+  width:100%;padding:11px;margin-top:14px;
+  background:var(--amb);color:#fff;
+  border:none;border-radius:var(--rs);
+  font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;
+  transition:all .2s;
+}
+.stage-submit-btn:hover{background:#92400e}
+.stage-submit-btn:disabled{background:var(--grn);cursor:default}
+
 /* 제출 */
 .submit-btn{width:100%;padding:14px;background:var(--grn);color:#fff;border:none;border-radius:var(--rs);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
 .submit-btn:hover{background:#15803d}
@@ -141,10 +152,14 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
 .dots{display:flex;gap:5px}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--bd);transition:all .3s}
 .dot.done{background:var(--grn)}.dot.cur{background:var(--pur);width:18px;border-radius:3px}
-.nav-btns{display:flex;gap:7px}
+.nav-btns{display:flex;gap:7px;align-items:center}
 .btn-prev,.btn-next,.btn-submit{padding:8px 16px;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--bd);background:var(--sf);color:var(--ink)}
 .btn-next{background:var(--ink);color:#fff;border-color:var(--ink)}
 .btn-submit{background:var(--grn);color:#fff;border-color:var(--grn);display:none}
+
+/* 자동저장 배지 */
+.save-badge{font-size:10px;color:var(--grn);font-weight:600;padding:2px 8px;background:var(--grn-lt);border-radius:10px;border:1px solid #bbf7d0;display:none}
+.save-badge.show{display:inline-block}
 
 /* 연구자 */
 #teacher-page{background:var(--bg)}
@@ -189,13 +204,8 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
     <div id="tab-s">
       <div class="field"><label>이름</label><input id="s-name" placeholder="홍길동" autocomplete="off"></div>
       <div class="field"><label>입장 코드</label><input id="s-code" placeholder="READ1" maxlength="8" style="letter-spacing:4px;font-weight:700;text-transform:uppercase"></div>
-      <div class="field"><label>팀 번호</label>
-        <select id="s-team">
-          <option value="">-- 팀 선택 --</option>
-          <option>1팀</option><option>2팀</option><option>3팀</option>
-          <option>4팀</option><option>5팀</option><option>6팀</option><option>7팀</option>
-        </select>
-      </div>
+      <!-- 팀: 드롭다운 → 직접 입력으로 변경 -->
+      <div class="field"><label>팀 이름</label><input id="s-team" placeholder="예: 1팀, 사과팀, A팀…" autocomplete="off"></div>
       <div class="field"><label>담당 텍스트 구간</label><input id="s-range" placeholder="예: 1~30쪽 / 1~3장"></div>
       <button class="btn-main" onclick="studentLogin()">입장하기 →</button>
     </div>
@@ -210,14 +220,17 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
 <!-- ══ 학생 페이지 ══ -->
 <div id="student-page" class="page">
   <div class="top-bar">
-    <div class="top-logo">📖 북클럽</div>
+    <div class="top-logo">📖 북클럽 <span id="top-team-badge" style="font-size:11px;font-weight:400;color:var(--ink3)"></span></div>
     <div class="top-steps">
       <button class="step-nav on" id="nav-memo" onclick="gotoStep('memo')">① 토의 준비</button>
       <button class="step-nav" id="nav-disc" onclick="gotoStep('disc')">② 팀 토의</button>
       <button class="step-nav" id="nav-analyze" onclick="gotoStep('analyze')">③ 담화 분석</button>
       <button class="step-nav" id="nav-submit" onclick="gotoStep('submit')">④ 제출</button>
     </div>
-    <button class="btn-out" onclick="goLogin()">나가기</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span class="save-badge" id="save-badge">☁️ 전송됨</span>
+      <button class="btn-out" onclick="goLogin()">나가기</button>
+    </div>
   </div>
 
   <div class="main-wrap">
@@ -240,24 +253,28 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
         <div class="memo-grid">
           <div class="memo-item">
             <label>🔍 이해가 안 됐거나 명료화하고 싶은 부분</label>
-            <textarea id="memo-clarify" oninput="saveMemo('clarify',this.value)" class="memo-ta" rows="3" placeholder="예) ○○쪽에서 '△△'라는 표현이 정확히 무슨 의미인지 모르겠음. 앞 내용과 모순되는 것 같기도 함."></textarea>
+            <textarea id="memo-clarify" oninput="saveMemo('clarify',this.value)" class="memo-ta" rows="3" placeholder="예) ○○쪽에서 '△△'라는 표현이 정확히 무슨 의미인지 모르겠음."></textarea>
           </div>
           <div class="memo-item">
             <label>❓ 팀원들에게 던지고 싶은 질문</label>
-            <textarea id="memo-question" oninput="saveMemo('question',this.value)" class="memo-ta" rows="3" placeholder="예) 저자가 왜 이 시점에 이 주장을 했을까? 다른 해석은 없을까? 우리 사회에서도 이런 현상이 있을까?"></textarea>
+            <textarea id="memo-question" oninput="saveMemo('question',this.value)" class="memo-ta" rows="3" placeholder="예) 저자가 왜 이 시점에 이 주장을 했을까?"></textarea>
           </div>
           <div class="memo-item">
             <label>📝 핵심 내용 요약 또는 인상 깊은 부분</label>
-            <textarea id="memo-summary" oninput="saveMemo('summary',this.value)" class="memo-ta" rows="3" placeholder="예) 이 텍스트의 핵심 주장은 ~이고, 가장 인상 깊었던 부분은 ○○쪽 내용임. 저자는 ~를 강조함."></textarea>
+            <textarea id="memo-summary" oninput="saveMemo('summary',this.value)" class="memo-ta" rows="3" placeholder="예) 이 텍스트의 핵심 주장은 ~이고, 가장 인상 깊었던 부분은 ○○쪽임."></textarea>
           </div>
           <div class="memo-item">
             <label>💬 자유 메모 (그 외 생각, 연결되는 경험 등)</label>
-            <textarea id="memo-free" oninput="saveMemo('free',this.value)" class="memo-ta" rows="3" placeholder="예) 이 내용이 최근 뉴스에서 본 ~와 비슷한 것 같음. 또는 개인적으로 ~한 경험이 생각남."></textarea>
+            <textarea id="memo-free" oninput="saveMemo('free',this.value)" class="memo-ta" rows="3" placeholder="예) 이 내용이 최근 뉴스에서 본 ~와 비슷한 것 같음."></textarea>
           </div>
         </div>
         <div class="guide amber">
           💡 완벽하게 쓰지 않아도 됩니다. 키워드나 짧은 문장으로만 적어도 괜찮아요. 이 메모는 연구 자료로 수집됩니다.
         </div>
+        <!-- ① 단계 제출 버튼 -->
+        <button class="stage-submit-btn" id="submit-memo-btn" onclick="submitStage('memo')">
+          📤 토의 준비 메모 제출하기
+        </button>
       </div>
     </div>
 
@@ -266,7 +283,7 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
       <div class="sc">
         <h2>② 팀 토의 — 녹음 및 발화 기록</h2>
         <div class="sc-desc">
-          팀원들과 자유롭게 텍스트에 대해 토의하세요. 말한 내용은 자동으로 글자로 변환됩니다.<br>
+          팀원들과 자유롭게 텍스트에 대해 토의하세요.<br>
           <strong>한 사람이 말을 마칠 때마다 발화자를 선택하고 저장 버튼을 눌러주세요.</strong>
         </div>
 
@@ -334,6 +351,11 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
             녹음 후 저장하면 여기에 발화가 쌓입니다
           </div>
         </div>
+
+        <!-- ② 단계 제출 버튼 -->
+        <button class="stage-submit-btn" id="submit-disc-btn" onclick="submitStage('disc')">
+          📤 팀 토의 발화 제출하기
+        </button>
       </div>
     </div>
 
@@ -342,45 +364,46 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
       <div class="sc">
         <h2>③ 담화 분석</h2>
         <div class="sc-desc">
-          토의가 끝났으면 아래 버튼을 눌러 AI 담화 분석을 실행하세요.<br>
-          팀의 대화가 어떤 읽기 전략으로 이루어졌는지 자동으로 분류됩니다.
+          토의가 끝났으면 아래 버튼을 눌러 AI 담화 분석을 실행하세요.
         </div>
         <div class="guide purple">
           🔬 <strong>분석되는 담화 유형</strong><br>
-          · <strong>CLA 명료화</strong> — "이 표현이 무슨 뜻인가요?" 처럼 모호한 부분을 밝히는 발화<br>
-          · <strong>QUE 탐구질문</strong> — "저자가 왜 이 주장을 했을까요?" 처럼 함께 탐색하는 질문<br>
-          · <strong>SUM 통합요약</strong> — "결국 이 글의 핵심은 ~" 처럼 내용을 통합하는 발화<br>
-          · <strong>EVA 비판평가</strong> — "이 근거는 설득력이 없어요" 처럼 주장을 평가하는 발화<br>
-          · <strong>REF 연결반성</strong> — "이게 우리 일상의 ~와 비슷해요" 처럼 연결하는 발화<br>
-          · <strong>EVI 근거제시</strong> — "○○쪽을 보면 ~라고 나와요" 처럼 텍스트 근거를 드는 발화<br>
-          · <strong>EXT 확장연결</strong> — "그 말에 덧붙이면 ~" 처럼 타인 아이디어를 발전시키는 발화<br>
-          · <strong>NEG 협상조정</strong> — "그 의견도 좋지만 ~는 어떨까요?" 처럼 의견을 조율하는 발화
+          · <strong>CLA 명료화</strong> — 모호한 부분을 밝히는 발화<br>
+          · <strong>QUE 탐구질문</strong> — 함께 탐색하는 질문<br>
+          · <strong>SUM 통합요약</strong> — 내용을 통합하는 발화<br>
+          · <strong>EVA 비판평가</strong> — 주장을 평가하는 발화<br>
+          · <strong>REF 연결반성</strong> — 경험과 연결하는 발화<br>
+          · <strong>EVI 근거제시</strong> — 텍스트 근거를 드는 발화<br>
+          · <strong>EXT 확장연결</strong> — 타인 아이디어를 발전시키는 발화<br>
+          · <strong>NEG 협상조정</strong> — 의견을 조율하는 발화
         </div>
         <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">🔬 담화 분석 실행</button>
         <div class="result-box" id="result-box">
           <div class="result-title">📊 분석 결과</div>
           <div id="result-content"></div>
         </div>
+        <!-- ③ 단계 제출 버튼 -->
+        <button class="stage-submit-btn" id="submit-analyze-btn" onclick="submitStage('analyze')">
+          📤 담화 분석 결과 제출하기
+        </button>
       </div>
     </div>
 
     <!-- ④ 제출 -->
     <div id="step-submit" class="step-page">
       <div class="sc">
-        <h2>④ 제출</h2>
+        <h2>④ 최종 제출</h2>
         <div class="sc-desc">
-          모든 활동이 끝났으면 아래 버튼을 눌러 데이터를 제출하세요.<br>
-          개인 메모, 발화 기록, 담화 분석 결과가 모두 함께 저장됩니다.
+          모든 활동이 끝났으면 아래 버튼을 눌러 최종 데이터를 제출하세요.
         </div>
         <div class="guide green">
           ✅ 제출 내용 확인<br>
-          · 토의 준비 메모 (4항목) — <strong>AI가 자동으로 읽기 전략 분석</strong><br>
+          · 토의 준비 메모 (4항목) — AI 읽기 전략 분석 포함<br>
           · 팀 발화 기록 전체 (<span id="submit-utt-count">0</span>개)<br>
           <span id="submit-utt-preview" style="font-size:11px;opacity:.7;display:block;margin-top:2px;margin-left:12px"></span>
-          · 담화 분석 결과<br>
-          <span style="font-size:11px;opacity:.8">* 핸드폰 사용자는 메모만 작성 후 제출해도 됩니다</span>
+          · 담화 분석 결과
         </div>
-        <button class="submit-btn" onclick="submitData()">📤 제출하기</button>
+        <button class="submit-btn" onclick="submitData()">📤 최종 제출하기</button>
       </div>
     </div>
 
@@ -396,7 +419,7 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
     <div class="nav-btns">
       <button class="btn-prev" id="btn-prev" onclick="prevStep()" style="display:none">← 이전</button>
       <button class="btn-next" id="btn-next" onclick="nextStep()">다음 →</button>
-      <button class="btn-submit" id="btn-submit" onclick="submitData()">📤 제출</button>
+      <button class="btn-submit" id="btn-submit" onclick="submitData()">📤 최종 제출</button>
     </div>
   </div>
 </div>
@@ -413,8 +436,8 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
   </div>
   <div class="t-body">
     <div class="tc">
-      <h3>🔑 Claude API 키 (전체 적용)</h3>
-      <p class="tc-sub">저장하면 학생 페이지의 담화 자동 분석에 자동 적용됩니다. 학생은 API 키를 신경 쓰지 않아도 됩니다.<br>
+      <h3>🔑 Claude API 키</h3>
+      <p class="tc-sub">저장하면 학생 페이지의 담화 자동 분석에 적용됩니다.<br>
       발급: <a href="https://console.anthropic.com" target="_blank" style="color:var(--blu)">console.anthropic.com</a> → API Keys</p>
       <div class="input-row">
         <input id="api-input" type="password" placeholder="sk-ant-api03-...">
@@ -437,19 +460,30 @@ body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink)
     </div>
     <div class="tc">
       <h3>📊 Google Sheets 자동 저장</h3>
-      <p class="tc-sub">Apps Script에 아래 코드를 배포하면 학생 제출 시 자동 저장됩니다.</p>
+      <p class="tc-sub">학생이 각 단계 제출 버튼을 누를 때마다 Sheets에 행이 추가됩니다 (학생 1명당 최대 4행).<br>
+      아래 Apps Script 코드를 배포한 뒤 URL을 입력하세요.</p>
       <div class="script-box">function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var d = JSON.parse(e.postData.contents);
-  sheet.appendRow([
-    new Date(), d.이름, d.팀, d.구간,
-    d.메모_명료화, d.메모_질문, d.메모_요약, d.메모_자유,
-    d.메모_주요전략, d.메모_전략분석, d.메모_전략분포,
-    d.발화수, d.발화전체, d.코드분포, d.주요코드, d.제출시각
-  ]);
-  return ContentService.createTextOutput('ok');
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var d = JSON.parse(e.postData.contents);
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['제출시각','이름','팀','구간','제출단계',
+        '메모_명료화','메모_질문','메모_요약','메모_자유',
+        '메모_주요전략','메모_전략분석','메모_전략분포',
+        '발화수','발화전체','코드분포','주요코드']);
+    }
+    sheet.appendRow([
+      d.제출시각, d.이름, d.팀, d.구간, d.제출단계,
+      d.메모_명료화, d.메모_질문, d.메모_요약, d.메모_자유,
+      d.메모_주요전략, d.메모_전략분석, d.메모_전략분포,
+      d.발화수, d.발화전체, d.코드분포, d.주요코드
+    ]);
+    return ContentService.createTextOutput('ok');
+  } catch(err) {
+    return ContentService.createTextOutput('error:' + err.message);
+  }
 }
-function doGet(e){return ContentService.createTextOutput('ok')}</div>
+function doGet(e) { return ContentService.createTextOutput('ok'); }</div>
       <div class="input-row">
         <input id="sheets-input" type="url" placeholder="https://script.google.com/macros/s/.../exec">
         <button class="sm-btn grn" onclick="saveSheets()">저장</button>
@@ -458,6 +492,7 @@ function doGet(e){return ContentService.createTextOutput('ok')}</div>
     </div>
     <div class="tc">
       <h3>🔬 수집 데이터</h3>
+      <p class="tc-sub" style="color:var(--amb)">⚠️ 이 패널은 같은 기기에서 학생 → 교사 전환 시에만 보입니다. 다른 기기 학생 데이터는 Google Sheets에서 확인하세요.</p>
       <div id="data-summary" style="margin-bottom:10px"></div>
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
         <button class="sm-btn grn" onclick="downloadCSV()">📥 CSV</button>
@@ -466,7 +501,7 @@ function doGet(e){return ContentService.createTextOutput('ok')}</div>
       </div>
       <div style="overflow-x:auto">
         <table class="dtbl">
-          <thead><tr><th>이름</th><th>팀</th><th>구간</th><th>메모 주요전략</th><th>발화수</th><th>주요코드</th><th>발화 내용 (일부)</th><th>제출</th></tr></thead>
+          <thead><tr><th>이름</th><th>팀</th><th>단계</th><th>메모 주요전략</th><th>발화수</th><th>주요코드</th><th>제출시각</th></tr></thead>
           <tbody id="data-tbody"><tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:20px">없음</td></tr></tbody>
         </table>
       </div>
@@ -492,9 +527,6 @@ const CODES = {
   MET:{label:'메타담화',color:'#64748b'},
 };
 
-// ══════════════════════════════════════
-// 상태
-// ══════════════════════════════════════
 const STEPS = ['memo','disc','analyze','submit'];
 let G = {
   name:'', team:'', range:'',
@@ -535,11 +567,13 @@ function switchTab(t){
 function studentLogin(){
   const name=document.getElementById('s-name').value.trim();
   const code=document.getElementById('s-code').value.trim().toUpperCase();
-  const team=document.getElementById('s-team').value;
+  const team=document.getElementById('s-team').value.trim();
   const range=document.getElementById('s-range').value.trim();
   if(!name){toast('이름을 입력해주세요');return}
-  if(code!==G.code){toast('입장 코드가 올바르지 않습니다');return}
-  if(!team){toast('팀 번호를 선택해주세요');return}
+  // 코드 검증: READ1은 항상 유효, 또는 현재 설정 코드
+  const validCodes=[G.code,'READ1'].map(c=>c.toUpperCase());
+  if(!validCodes.includes(code)){toast('입장 코드가 올바르지 않습니다 (현재 코드: '+G.code+')');return}
+  if(!team){toast('팀 이름을 입력해주세요');return}
   G.name=name; G.team=team; G.range=range||'미입력';
   G.done={memo:false,disc:false,analyze:false,submit:false};
   G.memo={clarify:'',question:'',summary:'',free:''};
@@ -547,18 +581,16 @@ function studentLogin(){
   document.getElementById('d-name').textContent=name;
   document.getElementById('d-team').textContent=team;
   document.getElementById('d-range').textContent=range||'미입력';
+  // 상단 팀 배지
+  document.getElementById('top-team-badge').textContent='— '+name+' ('+team+')';
   showPage('student-page');
   gotoStep('memo');
-  // Firebase 구독 — 다른 팀원이 보낸 발화를 실시간으로 받아 병합
+  // 단계별 제출 버튼 초기화
+  resetStageBtns();
   if(window.fbSubscribe){
     window.fbSubscribe(team, (remoteUtts)=>{
-      // 내 로컬 발화 유지하면서, 다른 팀원 발화만 추가
-      const myIds = new Set(D.utts.map(u=>u.ts));
-      remoteUtts.forEach(ru=>{
-        if(!myIds.has(ru.ts)){
-          D.utts.push(ru);
-        }
-      });
+      const myIds=new Set(D.utts.map(u=>u.ts));
+      remoteUtts.forEach(ru=>{if(!myIds.has(ru.ts))D.utts.push(ru);});
       D.utts.sort((a,b)=>(a.ts||0)-(b.ts||0));
       renderUtts();
     });
@@ -569,6 +601,13 @@ function teacherLogin(){
   loadTeacherSettings(); refreshData(); showPage('teacher-page');
 }
 
+function resetStageBtns(){
+  ['memo','disc','analyze'].forEach(stage=>{
+    const btn=document.getElementById('submit-'+stage+'-btn');
+    if(btn){btn.disabled=false;btn.textContent={memo:'📤 토의 준비 메모 제출하기',disc:'📤 팀 토의 발화 제출하기',analyze:'📤 담화 분석 결과 제출하기'}[stage];}
+  });
+}
+
 // ══════════════════════════════════════
 // 단계 이동
 // ══════════════════════════════════════
@@ -577,7 +616,7 @@ function gotoStep(s){
   STEPS.forEach(x=>{
     document.getElementById('step-'+x).classList.toggle('active',x===s);
     const nav=document.getElementById('nav-'+x);
-    if(nav){nav.classList.toggle('on',x===s); nav.classList.toggle('done',!!G.done[x]&&x!==s);}
+    if(nav){nav.classList.toggle('on',x===s);nav.classList.toggle('done',!!G.done[x]&&x!==s);}
   });
   const i=STEPS.indexOf(s);
   document.getElementById('btn-prev').style.display=i>0?'':'none';
@@ -585,29 +624,91 @@ function gotoStep(s){
   document.getElementById('btn-submit').style.display=i===STEPS.length-1?'inline-block':'none';
   if(s==='submit'){
     document.getElementById('submit-utt-count').textContent=D.utts.length;
-    // 발화 목록 미리보기도 갱신
     const prev=document.getElementById('submit-utt-preview');
     if(prev){
       prev.textContent=D.utts.length
-        ? D.utts.slice(0,3).map(u=>`${u.speaker}: ${u.text.slice(0,40)}${u.text.length>40?'…':''}`).join(' / ')
+        ? D.utts.slice(0,3).map(u=>u.speaker+': '+u.text.slice(0,40)+(u.text.length>40?'…':'')).join(' / ')
         : '(발화 없음)';
     }
   }
   updateDots();
 }
-function nextStep(){ const i=STEPS.indexOf(G.step); if(i<STEPS.length-1){G.done[G.step]=true;gotoStep(STEPS[i+1]);updateDots();} }
-function prevStep(){ const i=STEPS.indexOf(G.step); if(i>0) gotoStep(STEPS[i-1]); }
+function nextStep(){const i=STEPS.indexOf(G.step);if(i<STEPS.length-1){G.done[G.step]=true;gotoStep(STEPS[i+1]);updateDots();}}
+function prevStep(){const i=STEPS.indexOf(G.step);if(i>0)gotoStep(STEPS[i-1]);}
 function updateDots(){
   STEPS.forEach(s=>{
-    const d=document.getElementById('dot-'+s); if(!d)return;
+    const d=document.getElementById('dot-'+s);if(!d)return;
     d.className='dot';
-    if(s===G.step)d.classList.add('cur'); else if(G.done[s])d.classList.add('done');
+    if(s===G.step)d.classList.add('cur');else if(G.done[s])d.classList.add('done');
   });
 }
 
-// 메모 실시간 저장
-function saveMemo(key, val){
-  G.memo[key] = val;
+function saveMemo(key,val){G.memo[key]=val;}
+
+// ══════════════════════════════════════
+// 단계별 제출 → Sheets 전송
+// ══════════════════════════════════════
+async function submitStage(stage){
+  const btn=document.getElementById('submit-'+stage+'-btn');
+  if(btn){btn.disabled=true;btn.textContent='전송 중…';}
+
+  // 메모 최신값 동기화
+  const memo_clarify=document.getElementById('memo-clarify')?.value||G.memo.clarify||'';
+  const memo_question=document.getElementById('memo-question')?.value||G.memo.question||'';
+  const memo_summary=document.getElementById('memo-summary')?.value||G.memo.summary||'';
+  const memo_free=document.getElementById('memo-free')?.value||G.memo.free||'';
+  G.memo={clarify:memo_clarify,question:memo_question,summary:memo_summary,free:memo_free};
+
+  const counts={};
+  D.utts.forEach(u=>{if(u.code)counts[u.code]=(counts[u.code]||0)+1;});
+  const topCode=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+  const uttsFull=D.utts.length
+    ? D.utts.map((u,i)=>'[발화'+(i+1)+'] '+u.speaker+': '+u.text+' | 코드:'+(u.code||'미분석')+(u.reason?' ('+u.reason+')':'')).join('\n')
+    : '(발화 없음)';
+
+  const payload={
+    제출시각:new Date().toLocaleString('ko-KR'),
+    이름:G.name, 팀:G.team, 구간:G.range,
+    제출단계:{memo:'①토의준비',disc:'②팀토의',analyze:'③담화분석',submit:'④최종제출'}[stage]||stage,
+    메모_명료화:memo_clarify, 메모_질문:memo_question,
+    메모_요약:memo_summary, 메모_자유:memo_free,
+    메모_주요전략:'', 메모_전략분석:'', 메모_전략분포:'',
+    발화수:D.utts.length, 발화전체:uttsFull,
+    코드분포:JSON.stringify(counts), 주요코드:topCode,
+  };
+
+  // localStorage에도 저장
+  const subs=JSON.parse(localStorage.getItem('rd_subs')||'[]');
+  subs.push(payload);
+  localStorage.setItem('rd_subs',JSON.stringify(subs));
+
+  // Sheets 전송
+  const url=G.sheetsUrl||localStorage.getItem('rd_sheets')||'';
+  if(url){
+    try{
+      // text/plain 헤더 사용 — Apps Script CORS 호환
+      await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+      if(btn){btn.textContent='✅ 제출됨';btn.style.background='var(--grn)';}
+      showSaveBadge();
+      toast('✅ '+({memo:'토의 준비',disc:'팀 토의',analyze:'담화 분석',submit:'최종'}[stage]||stage)+' 제출 완료!');
+    }catch(e){
+      if(btn){btn.disabled=false;btn.textContent='📤 다시 시도';}
+      toast('❌ 전송 실패: '+e.message);
+    }
+  } else {
+    if(btn){btn.textContent='✅ 로컬 저장됨';btn.style.background='var(--grn)';}
+    toast('✅ 저장됨 (Sheets URL 미설정)');
+  }
+  G.done[stage]=true;
+  updateDots();
+}
+
+function showSaveBadge(){
+  const b=document.getElementById('save-badge');
+  if(!b)return;
+  b.classList.add('show');
+  clearTimeout(b._t);
+  b._t=setTimeout(()=>b.classList.remove('show'),2500);
 }
 
 // ══════════════════════════════════════
@@ -617,114 +718,60 @@ function addMember(){
   const inp=document.getElementById('member-input');
   const name=inp.value.trim();
   if(!name||D.members.includes(name)){inp.value='';return}
-  D.members.push(name); inp.value='';
-  renderMemberRow(); renderSpeakerBtns();
+  D.members.push(name);inp.value='';
+  renderMemberRow();renderSpeakerBtns();
 }
 function renderMemberRow(){
   const row=document.getElementById('member-row');
-  const tags=D.members.map(m=>`<span style="display:inline-flex;align-items:center;gap:3px;background:var(--ink);color:#fff;padding:3px 9px;border-radius:15px;font-size:12px">${m}<button onclick="removeMember('${m}')" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:12px;padding:0;margin-left:2px">×</button></span>`).join('');
-  row.innerHTML=tags+`<input id="member-input" class="sp-add-input" placeholder="이름" onkeydown="if(event.key==='Enter')addMember()"><button class="sp-add-btn" onclick="addMember()">+ 추가</button>`;
+  const tags=D.members.map(m=>'<span style="display:inline-flex;align-items:center;gap:3px;background:var(--ink);color:#fff;padding:3px 9px;border-radius:15px;font-size:12px">'+m+'<button onclick="removeMember(\''+m+'\')" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:12px;padding:0;margin-left:2px">×</button></span>').join('');
+  row.innerHTML=tags+'<input id="member-input" class="sp-add-input" placeholder="이름" onkeydown="if(event.key===\'Enter\')addMember()"><button class="sp-add-btn" onclick="addMember()">+ 추가</button>';
 }
-function removeMember(name){ D.members=D.members.filter(m=>m!==name); renderMemberRow(); renderSpeakerBtns(); }
+function removeMember(name){D.members=D.members.filter(m=>m!==name);renderMemberRow();renderSpeakerBtns();}
 function renderSpeakerBtns(){
   const el=document.getElementById('speaker-btns');
   if(!D.members.length){el.innerHTML='<span style="font-size:12px;color:var(--ink3)">위에서 팀원을 추가하세요</span>';return}
-  el.innerHTML=D.members.map(m=>`<button class="sp-btn${D.speaker===m?' on':''}" onclick="pickSpeaker('${m}')">${m}</button>`).join('');
+  el.innerHTML=D.members.map(m=>'<button class="sp-btn'+(D.speaker===m?' on':'')+'" onclick="pickSpeaker(\''+m+'\')">'+m+'</button>').join('');
 }
-function pickSpeaker(name){ D.speaker=name; renderSpeakerBtns(); }
+function pickSpeaker(name){D.speaker=name;renderSpeakerBtns();}
 
 // ══════════════════════════════════════
 // 녹음 & STT
 // ══════════════════════════════════════
-// 모바일 감지
-function isMobile(){
-  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-}
-
-function toggleRec(){ if(D.recOn) stopRec(); else startRec(); }
-
+function isMobile(){return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);}
+function toggleRec(){if(D.recOn)stopRec();else startRec();}
 function startRec(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){toast('음성 인식이 지원되지 않습니다. Chrome을 사용해주세요.');return}
-
   const mobile=isMobile();
-  D.recog=new SR();
-  D.recog.lang='ko-KR';
-  // 모바일: continuous=false (중복 방지), PC: true
-  D.recog.continuous=!mobile;
-  D.recog.interimResults=true;
-
-  // 중복 방지용: 마지막으로 처리한 resultIndex 기억
-  let lastProcessedIndex=-1;
-  // 중복 텍스트 필터: 직전 final과 동일하면 무시
-  let lastFinalText='';
-
+  D.recog=new SR();D.recog.lang='ko-KR';D.recog.continuous=!mobile;D.recog.interimResults=true;
+  let lastProcessedIndex=-1,lastFinalText='';
   D.recog.onresult=e=>{
-    let final='', interim='';
-
+    let final='',interim='';
     if(mobile){
-      // 모바일: resultIndex가 0으로 리셋되는 경우 대비
-      // 전체 results를 순회하되 이미 처리한 인덱스 건너뜀
       for(let i=0;i<e.results.length;i++){
-        if(e.results[i].isFinal){
-          if(i>lastProcessedIndex){
-            final+=e.results[i][0].transcript;
-            lastProcessedIndex=i;
-          }
-        } else {
-          interim+=e.results[i][0].transcript;
-        }
+        if(e.results[i].isFinal){if(i>lastProcessedIndex){final+=e.results[i][0].transcript;lastProcessedIndex=i;}}
+        else{interim+=e.results[i][0].transcript;}
       }
-    } else {
-      // PC: 표준 방식 — resultIndex부터만 처리
+    }else{
       for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+        if(e.results[i].isFinal)final+=e.results[i][0].transcript;
         else interim+=e.results[i][0].transcript;
       }
     }
-
-    // 중복 텍스트 필터 — 직전과 동일한 텍스트면 무시
-    if(final){
-      const cleaned=final.trim();
-      if(cleaned && cleaned!==lastFinalText){
-        D.liveBuf+=cleaned+' ';
-        lastFinalText=cleaned;
-      }
-    }
-
+    if(final){const c=final.trim();if(c&&c!==lastFinalText){D.liveBuf+=c+' ';lastFinalText=c;}}
     const lb=document.getElementById('live-box');
-    lb.textContent=D.liveBuf.trim()+(interim?' '+interim+'…':'');
-    lb.classList.add('on');
+    lb.textContent=D.liveBuf.trim()+(interim?' '+interim+'…':'');lb.classList.add('on');
   };
-
-  D.recog.onerror=e=>{
-    if(e.error==='not-allowed'){toast('마이크 권한을 허용해주세요');stopRec();return}
-    if(e.error==='no-speech') return; // 침묵은 무시
-    console.warn('STT 오류:', e.error);
-  };
-
-  D.recog.onend=()=>{
-    // 자동 재시작 (모바일도 continuous=false라 끝나면 재시작)
-    if(D.recOn){
-      lastProcessedIndex=-1; // 재시작 시 인덱스 리셋
-      setTimeout(()=>{ if(D.recOn) D.recog.start(); }, 1500);
-    }
-  };
-
-  D.recog.start();
-  D.recOn=true;
-
-  const mobileNote=mobile?' <span style="font-size:10px;opacity:.7">(모바일 모드)</span>':'';
+  D.recog.onerror=e=>{if(e.error==='not-allowed'){toast('마이크 권한을 허용해주세요');stopRec();}};
+  D.recog.onend=()=>{if(D.recOn){lastProcessedIndex=-1;setTimeout(()=>{if(D.recOn)D.recog.start();},1500);}};
+  D.recog.start();D.recOn=true;
   document.getElementById('rec-btn').className='rec-btn recording';
   document.getElementById('rec-label').textContent='녹음 중지';
-  document.getElementById('rec-info').innerHTML=
-    '🔴 <strong>녹음 중</strong>'+mobileNote+' — 자유롭게 이야기하세요<br>'+
-    '<span style="font-size:11px">말이 끝나면 발화자 선택 후 저장하세요</span>';
-  toast('🎙 녹음 시작'+(mobile?' (모바일 모드)':''));
+  document.getElementById('rec-info').innerHTML='🔴 <strong>녹음 중</strong> — 자유롭게 이야기하세요<br><span style="font-size:11px">말이 끝나면 발화자 선택 후 저장하세요</span>';
+  toast('🎙 녹음 시작');
 }
-
 function stopRec(){
-  if(D.recog){ try{ D.recog.stop(); }catch(e){} }
+  if(D.recog){try{D.recog.stop();}catch(e){}}
   D.recOn=false;
   document.getElementById('rec-btn').className='rec-btn idle';
   document.getElementById('rec-label').textContent='녹음 시작';
@@ -736,86 +783,46 @@ function stopRec(){
 // 발화 저장
 // ══════════════════════════════════════
 function saveUtt(){
-  // live-box 또는 manual-ta에서 텍스트 가져오기
   const liveText=document.getElementById('live-box').textContent.replace('여기에 실시간 전사 내용이 표시됩니다…','').trim();
   const manualText=document.getElementById('manual-ta').value.trim();
   const text=manualText||liveText;
-  if(!text){toast('저장할 내용이 없습니다. 먼저 녹음하거나 직접 입력하세요.');return}
+  if(!text){toast('저장할 내용이 없습니다.');return}
   if(!D.speaker){toast('발화자를 선택해주세요');return}
-
-  const utt={
-    id:Date.now(),
-    speaker:D.speaker,
-    text,
-    time:new Date().toLocaleTimeString('ko-KR'),
-    src:manualText?'manual':'stt',
-    code:null, reason:null,
-    ts:Date.now()
-  };
-
-  // 로컬에 항상 저장 (렌더링 보장)
-  D.utts.push(utt);
-  renderUtts();
-  // Firebase에도 동시 전송 (실시간 공유용)
-  if(window.fbPush && G.team){
-    try{ window.fbPush(G.team, utt); }catch(e){ console.warn('Firebase 전송 실패:', e); }
-  }
-
-  // 초기화
+  const utt={id:Date.now(),speaker:D.speaker,text,time:new Date().toLocaleTimeString('ko-KR'),src:manualText?'manual':'stt',code:null,reason:null,ts:Date.now()};
+  D.utts.push(utt);renderUtts();
+  if(window.fbPush&&G.team){try{window.fbPush(G.team,utt);}catch(e){}}
   D.liveBuf='';
   document.getElementById('live-box').textContent='여기에 실시간 전사 내용이 표시됩니다…';
   document.getElementById('live-box').classList.remove('on');
   document.getElementById('manual-ta').value='';
   toast('✅ 발화 저장됨 — '+D.speaker);
 }
-
-// Enter 키 바인딩
-document.addEventListener('keydown', e=>{
+document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!e.shiftKey&&document.getElementById('student-page').classList.contains('active')&&G.step==='disc'){
-    const active=document.activeElement;
-    if(active&&active.id==='manual-ta') return; // manual-ta는 자체 처리
-    e.preventDefault(); saveUtt();
+    const active=document.activeElement;if(active&&active.id==='manual-ta')return;
+    e.preventDefault();saveUtt();
   }
 });
-
-function clearUtts(){
-  if(!confirm('발화 목록을 전체 삭제하시겠습니까?'))return;
-  D.utts=[]; renderUtts();
-}
+function clearUtts(){if(!confirm('발화 목록을 전체 삭제하시겠습니까?'))return;D.utts=[];renderUtts();}
 function renderUtts(){
   const el=document.getElementById('utt-list');
   document.getElementById('utt-count').textContent='('+D.utts.length+'개)';
-  const sc=document.getElementById('submit-utt-count');
-  if(sc) sc.textContent=D.utts.length;
-  if(!D.utts.length){
-    el.innerHTML='<div style="font-size:12px;color:var(--ink3);text-align:center;padding:24px">녹음 후 저장하면 여기에 발화가 쌓입니다</div>';
-    return;
-  }
+  const sc=document.getElementById('submit-utt-count');if(sc)sc.textContent=D.utts.length;
+  if(!D.utts.length){el.innerHTML='<div style="font-size:12px;color:var(--ink3);text-align:center;padding:24px">녹음 후 저장하면 여기에 발화가 쌓입니다</div>';return}
   el.innerHTML=D.utts.map((u,i)=>{
     const ci=u.code&&CODES[u.code]?CODES[u.code]:null;
-    return `<div class="utt-item">
-      <div class="utt-left">
-        <div class="utt-speaker">${u.speaker||'?'}</div>
-        <div class="utt-time">${u.time}</div>
-      </div>
-      <div class="utt-right">
-        <div class="utt-text">${u.text}</div>
-        ${ci?`<div class="utt-code"><span class="code-badge" style="background:${ci.color}">${u.code} ${ci.label}</span></div>`:''}
-        ${u.reason?`<div class="utt-reason">→ ${u.reason}</div>`:''}
-      </div>
-      <button class="del-btn" onclick="delUtt(${i})">×</button>
-    </div>`;
+    return '<div class="utt-item"><div class="utt-left"><div class="utt-speaker">'+u.speaker+'</div><div class="utt-time">'+u.time+'</div></div><div class="utt-right"><div class="utt-text">'+u.text+'</div>'+(ci?'<div class="utt-code"><span class="code-badge" style="background:'+ci.color+'">'+u.code+' '+ci.label+'</span></div>':'')+(u.reason?'<div class="utt-reason">→ '+u.reason+'</div>':'')+'</div><button class="del-btn" onclick="delUtt('+i+')">×</button></div>';
   }).join('');
   el.scrollTop=el.scrollHeight;
 }
-function delUtt(i){ D.utts.splice(i,1); renderUtts(); }
+function delUtt(i){D.utts.splice(i,1);renderUtts();}
 
 // ══════════════════════════════════════
 // Claude API
 // ══════════════════════════════════════
 async function callClaude(msgs,sys,maxT=2000){
   const key=G.apiKey||localStorage.getItem('rd_key')||'';
-  if(!key) throw new Error('API 키가 설정되지 않았습니다. 연구자 패널에서 API 키를 먼저 저장해주세요.');
+  if(!key)throw new Error('API 키가 설정되지 않았습니다. 연구자 패널에서 먼저 저장해주세요.');
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -830,16 +837,16 @@ async function callClaude(msgs,sys,maxT=2000){
 // 담화 분석
 // ══════════════════════════════════════
 async function runAnalysis(){
-  if(!D.utts.length){toast('분석할 발화가 없습니다. 먼저 토의를 진행해주세요.');return}
+  if(!D.utts.length){toast('분석할 발화가 없습니다.');return}
   const btn=document.getElementById('analyze-btn');
-  btn.disabled=true; btn.textContent='⏳ 분석 중…';
-  const prompt=`당신은 읽기 교육 연구자입니다. PISA 2025 읽기 과정 및 CCSS Speaking & Listening 기준으로 대학생 북클럽 토의 발화를 분석합니다.
+  btn.disabled=true;btn.textContent='⏳ 분석 중…';
+  const prompt=`당신은 읽기 교육 연구자입니다. PISA 2025 기준으로 대학생 북클럽 토의 발화를 분석합니다.
 
 【분석 코드】
-CLA(명료화): 텍스트의 모호한 부분·어려운 개념을 밝히는 발화
+CLA(명료화): 모호한 부분·어려운 개념을 밝히는 발화
 QUE(탐구질문): 팀 공동 탐색을 유도하는 비판적 질문
-SUM(통합요약): 텍스트 내용을 연결하거나 전체를 요약하는 발화
-EVA(비판평가): 저자 주장이나 근거의 타당성을 평가하는 발화
+SUM(통합요약): 내용을 연결하거나 전체를 요약하는 발화
+EVA(비판평가): 주장이나 근거의 타당성을 평가하는 발화
 REF(연결반성): 텍스트를 자신의 경험·세계와 연결하는 발화
 EVI(근거제시): 페이지·문단 등 텍스트 근거를 직접 인용하는 발화
 EXT(확장연결): 타인 아이디어를 수용하고 발전시키는 발화
@@ -847,160 +854,108 @@ NEG(협상조정): 반박·대안 제시·합의 탐색 발화
 MET(메타담화): 토의 진행·역할 조정 관련 발화
 
 【발화 목록】
-${D.utts.map((u,i)=>`[${i}] ${u.speaker}: ${u.text}`).join('\n')}
+${D.utts.map((u,i)=>'['+i+'] '+u.speaker+': '+u.text).join('\n')}
 
 JSON 배열만 응답:
 [{"idx":0,"code":"코드","reason":"담화 기능 20자 이내"},...]`;
   try{
     const raw=await callClaude([{role:'user',content:prompt}],'읽기 교육 담화 분석 전문가. JSON 배열만 응답.',2500);
     const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    parsed.forEach(item=>{
-      if(D.utts[item.idx]){D.utts[item.idx].code=item.code;D.utts[item.idx].reason=item.reason;}
-    });
-    D.analysisResult=parsed;
-    renderUtts(); renderResult();
+    parsed.forEach(item=>{if(D.utts[item.idx]){D.utts[item.idx].code=item.code;D.utts[item.idx].reason=item.reason;}});
+    D.analysisResult=parsed;renderUtts();renderResult();
     toast('✅ 분석 완료!');
   }catch(e){toast('분석 오류: '+e.message);}
-  btn.disabled=false; btn.textContent='🔬 담화 분석 실행';
+  btn.disabled=false;btn.textContent='🔬 담화 분석 실행';
 }
 function renderResult(){
-  const box=document.getElementById('result-box');
-  const content=document.getElementById('result-content');
-  const coded=D.utts.filter(u=>u.code);
-  const total=coded.length;
+  const box=document.getElementById('result-box');const content=document.getElementById('result-content');
+  const coded=D.utts.filter(u=>u.code);const total=coded.length;
   if(!total){box.style.display='none';return}
-  const counts={};
-  coded.forEach(u=>{counts[u.code]=(counts[u.code]||0)+1;});
+  const counts={};coded.forEach(u=>{counts[u.code]=(counts[u.code]||0)+1;});
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  content.innerHTML=`<div style="font-size:12px;color:var(--ink2);margin-bottom:10px">총 <strong>${total}</strong>개 발화 분석됨</div>`+
+  content.innerHTML='<div style="font-size:12px;color:var(--ink2);margin-bottom:10px">총 <strong>'+total+'</strong>개 발화 분석됨</div>'+
     sorted.map(([code,cnt])=>{
       const ci=CODES[code];if(!ci)return'';
       const pct=Math.round(cnt/total*100);
-      return`<div class="code-row">
-        <span style="min-width:70px;font-weight:700;color:${ci.color};font-size:12px">${code}</span>
-        <span style="min-width:60px;font-size:11px;color:var(--ink2)">${ci.label}</span>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${ci.color}"></div></div>
-        <span class="code-cnt">${cnt}회 (${pct}%)</span>
-      </div>`;
+      return'<div class="code-row"><span style="min-width:70px;font-weight:700;color:'+ci.color+';font-size:12px">'+code+'</span><span style="min-width:60px;font-size:11px;color:var(--ink2)">'+ci.label+'</span><div class="bar-wrap"><div class="bar-fill" style="width:'+pct+'%;background:'+ci.color+'"></div></div><span class="code-cnt">'+cnt+'회 ('+pct+'%)</span></div>';
     }).join('');
   box.style.display='block';
 }
 
 // ══════════════════════════════════════
-// 제출
+// 최종 제출
 // ══════════════════════════════════════
-async function analyzeMemo(memo_clarify, memo_question, memo_summary, memo_free){
+async function analyzeMemo(memo_clarify,memo_question,memo_summary,memo_free){
   const all=[memo_clarify,memo_question,memo_summary,memo_free].filter(Boolean).join(' ');
-  if(!all.trim()) return {전략분포:'메모없음', 주요전략:'없음', 전략분석:'메모 없음'};
+  if(!all.trim())return{전략분포:'메모없음',주요전략:'없음',전략분석:'메모 없음'};
   const prompt=`아래는 대학생이 에세이 읽기 토의 전에 혼자 작성한 메모입니다.
-PISA 읽기 전략 기준으로 분석하세요.
-
 [명료화 메모]: ${memo_clarify||'없음'}
 [질문 메모]: ${memo_question||'없음'}
 [요약 메모]: ${memo_summary||'없음'}
 [자유 메모]: ${memo_free||'없음'}
-
-다음 전략 유형으로 분류하세요:
-- LOCATE: 텍스트에서 정보를 찾거나 위치를 파악하는 전략
-- EVALUATE: 주장·근거·논리를 비판적으로 평가하는 전략
-- INTEGRATE: 여러 정보를 연결하거나 통합하여 요약하는 전략
-- REFLECT: 텍스트를 자신의 경험·세계와 연결하여 반성하는 전략
-- ACCESS: 질문을 만들고 토의에 참여하려는 전략
-
-JSON만 응답:
-{"전략분포":{"LOCATE":0,"EVALUATE":0,"INTEGRATE":0,"REFLECT":0,"ACCESS":0},"주요전략":"전략명","전략분석":"30자이내 요약"}`;
+PISA 읽기 전략으로 분류: LOCATE, EVALUATE, INTEGRATE, REFLECT, ACCESS
+JSON만: {"전략분포":{"LOCATE":0,"EVALUATE":0,"INTEGRATE":0,"REFLECT":0,"ACCESS":0},"주요전략":"전략명","전략분석":"30자이내"}`;
   try{
     const raw=await callClaude([{role:'user',content:prompt}],'읽기 교육 연구자. JSON만 응답.',600);
     return JSON.parse(raw.replace(/```json|```/g,'').trim());
-  }catch(e){ return {전략분포:'분석실패', 주요전략:'오류', 전략분석:e.message}; }
+  }catch(e){return{전략분포:'분석실패',주요전략:'오류',전략분석:e.message};}
 }
 
 async function submitData(){
-  // DOM + G.memo 둘 다 확인 (더 안전)
   const memo_clarify=document.getElementById('memo-clarify')?.value||G.memo.clarify||'';
   const memo_question=document.getElementById('memo-question')?.value||G.memo.question||'';
   const memo_summary=document.getElementById('memo-summary')?.value||G.memo.summary||'';
   const memo_free=document.getElementById('memo-free')?.value||G.memo.free||'';
-  // G.memo도 최신으로 동기화
-  G.memo={clarify:memo_clarify, question:memo_question, summary:memo_summary, free:memo_free};
+  G.memo={clarify:memo_clarify,question:memo_question,summary:memo_summary,free:memo_free};
   const hasMemo=memo_clarify||memo_question||memo_summary||memo_free;
   const hasUtts=D.utts.length>0;
   if(!hasMemo&&!hasUtts){toast('메모 또는 발화 기록이 필요합니다');return}
-
   toast('📊 분석 및 저장 중…');
-
-  // 메모 읽기 전략 분석
   let memoAnalysis={전략분포:'없음',주요전략:'없음',전략분석:'메모 없음'};
-  if(hasMemo){
-    try{ memoAnalysis=await analyzeMemo(memo_clarify,memo_question,memo_summary,memo_free); }
-    catch(e){}
-  }
-
-  const counts={};
-  D.utts.forEach(u=>{if(u.code)counts[u.code]=(counts[u.code]||0)+1;});
+  if(hasMemo){try{memoAnalysis=await analyzeMemo(memo_clarify,memo_question,memo_summary,memo_free);}catch(e){}}
+  const counts={};D.utts.forEach(u=>{if(u.code)counts[u.code]=(counts[u.code]||0)+1;});
   const topCode=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'미분석';
-  const uttsFull=D.utts.length
-    ? D.utts.map((u,i)=>`[발화${i+1}] ${u.speaker}: ${u.text} | 코드:${u.code||'미분석'}${u.reason?' ('+u.reason+')':''}`).join('\n')
-    : '(토의 발화 없음)';
-
+  const uttsFull=D.utts.length?D.utts.map((u,i)=>'[발화'+(i+1)+'] '+u.speaker+': '+u.text+' | 코드:'+(u.code||'미분석')+(u.reason?' ('+u.reason+')':'')).join('\n'):'(토의 발화 없음)';
   const payload={
-    이름:G.name, 팀:G.team, 구간:G.range,
-    메모_명료화:memo_clarify,
-    메모_질문:memo_question,
-    메모_요약:memo_summary,
-    메모_자유:memo_free,
+    제출시각:new Date().toLocaleString('ko-KR'),
+    이름:G.name,팀:G.team,구간:G.range,
+    제출단계:'④최종제출',
+    메모_명료화:memo_clarify,메모_질문:memo_question,메모_요약:memo_summary,메모_자유:memo_free,
     메모_주요전략:memoAnalysis.주요전략||'',
     메모_전략분석:memoAnalysis.전략분석||'',
     메모_전략분포:typeof memoAnalysis.전략분포==='object'?JSON.stringify(memoAnalysis.전략분포):memoAnalysis.전략분포||'',
-    발화수:D.utts.length,
-    발화전체:uttsFull,
-    코드분포:JSON.stringify(counts),
-    주요코드:topCode,
-    제출시각:new Date().toLocaleString('ko-KR'),
+    발화수:D.utts.length,발화전체:uttsFull,코드분포:JSON.stringify(counts),주요코드:topCode,
   };
-
-  // localStorage
   const subs=JSON.parse(localStorage.getItem('rd_subs')||'[]');
-  const idx=subs.findIndex(s=>s.이름===G.name&&s.팀===G.team);
-  if(idx>=0)subs[idx]=payload;else subs.push(payload);
+  subs.push(payload);
   localStorage.setItem('rd_subs',JSON.stringify(subs));
-
-  // Sheets
   const url=G.sheetsUrl||localStorage.getItem('rd_sheets')||'';
   if(url){
     try{
-      await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      toast('✅ 제출 완료! 수고했습니다 🎉');
+      await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+      showSaveBadge();toast('✅ 최종 제출 완료! 수고했습니다 🎉');
     }catch(e){toast('✅ 로컬 저장 완료 (Sheets 전송 실패: '+e.message+')');}
-  }else{
-    toast('✅ 제출 완료! 수고했습니다 🎉');
-  }
-  G.done.submit=true; updateDots();
+  }else{toast('✅ 최종 제출 완료! 수고했습니다 🎉');}
+  G.done.submit=true;updateDots();
 }
 
 // ══════════════════════════════════════
 // 연구자 패널
 // ══════════════════════════════════════
 function loadTeacherSettings(){
-  const k=localStorage.getItem('rd_key');
-  if(k){G.apiKey=k;const el=document.getElementById('api-input');if(el)el.value=k;document.getElementById('api-status').textContent='✅ 저장됨';}
-  const c=localStorage.getItem('rd_code');
-  if(c){G.code=c;document.getElementById('code-display').textContent=c;}
-  const s=localStorage.getItem('rd_sheets');
-  if(s){G.sheetsUrl=s;const el=document.getElementById('sheets-input');if(el)el.value=s;document.getElementById('sheets-status').textContent='✅ 연동됨';}
+  const k=localStorage.getItem('rd_key');if(k){G.apiKey=k;const el=document.getElementById('api-input');if(el)el.value=k;document.getElementById('api-status').textContent='✅ 저장됨';}
+  const c=localStorage.getItem('rd_code');if(c){G.code=c;const el=document.getElementById('code-display');if(el)el.textContent=c;}
+  const s=localStorage.getItem('rd_sheets');if(s){G.sheetsUrl=s;const el=document.getElementById('sheets-input');if(el)el.value=s;document.getElementById('sheets-status').textContent='✅ 연동됨';}
 }
 function saveApiKey(){
   const k=document.getElementById('api-input').value.trim();
   if(!k||!k.startsWith('sk-ant-')){toast('올바른 API 키 형식이 아닙니다');return}
-  G.apiKey=k;localStorage.setItem('rd_key',k);
-  document.getElementById('api-status').textContent='✅ 저장됨';
-  toast('✅ API 키 저장됨');
+  G.apiKey=k;localStorage.setItem('rd_key',k);document.getElementById('api-status').textContent='✅ 저장됨';toast('✅ API 키 저장됨');
 }
 async function testApiKey(){
   const k=document.getElementById('api-input').value.trim()||G.apiKey;
   if(!k){toast('API 키를 먼저 입력하세요');return}
-  G.apiKey=k;
-  document.getElementById('api-status').textContent='테스트 중…';
+  G.apiKey=k;document.getElementById('api-status').textContent='테스트 중…';
   try{await callClaude([{role:'user',content:'안녕'}],'한 단어: 네',10);document.getElementById('api-status').textContent='✅ 연결 성공!';toast('✅ 연결 성공!');}
   catch(e){document.getElementById('api-status').textContent='❌ 실패: '+e.message;toast('❌ 연결 실패');}
 }
@@ -1008,14 +963,11 @@ function saveSheets(){
   const u=document.getElementById('sheets-input').value.trim();
   if(!u){toast('URL을 입력하세요');return}
   G.sheetsUrl=u;localStorage.setItem('rd_sheets',u);
-  document.getElementById('sheets-status').textContent='✅ 연동됨';
-  toast('✅ Sheets URL 저장됨');
+  document.getElementById('sheets-status').textContent='✅ 연동됨';toast('✅ Sheets URL 저장됨');
 }
 function newCode(){
   G.code=[...'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'].sort(()=>Math.random()-.5).slice(0,6).join('');
-  localStorage.setItem('rd_code',G.code);
-  document.getElementById('code-display').textContent=G.code;
-  toast('새 코드: '+G.code);
+  localStorage.setItem('rd_code',G.code);document.getElementById('code-display').textContent=G.code;toast('새 코드: '+G.code);
 }
 function copyCode(){navigator.clipboard.writeText(G.code).then(()=>toast('복사됨: '+G.code));}
 function refreshData(){renderTable();}
@@ -1024,115 +976,40 @@ function renderTable(){
   const data=JSON.parse(localStorage.getItem('rd_subs')||'[]');
   const sum=document.getElementById('data-summary');
   if(data.length){
-    sum.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
-      ${[['총학생',data.length],['총발화',data.reduce((a,r)=>a+(r.발화수||0),0)],['팀수',new Set(data.map(r=>r.팀)).size],['제출',data.filter(r=>r.제출시각).length]].map(([l,v])=>
-        `<div style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center"><div style="font-size:20px;font-weight:700">${v}</div><div style="font-size:10px;color:var(--ink2)">${l}</div></div>`).join('')}
-    </div>`;
+    const names=new Set(data.map(r=>r.이름));
+    const teams=new Set(data.map(r=>r.팀));
+    sum.innerHTML='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">'+
+      [['총 제출',data.length],['학생수',names.size],['팀수',teams.size],['발화합계',data.reduce((a,r)=>a+(r.발화수||0),0)]].map(([l,v])=>
+        '<div style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center"><div style="font-size:20px;font-weight:700">'+v+'</div><div style="font-size:10px;color:var(--ink2)">'+l+'</div></div>').join('')+'</div>';
   }
   const tb=document.getElementById('data-tbody');
   if(!data.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:20px">없음</td></tr>';return}
-  tb.innerHTML=data.map(r=>`<tr>
-    <td><strong>${r.이름||''}</strong></td>
-    <td>${r.팀||''}</td>
-    <td style="font-size:11px">${r.구간||''}</td>
-    <td><span style="font-size:11px;font-weight:700;background:var(--teal-lt);color:var(--teal);padding:2px 7px;border-radius:8px">${r.메모_주요전략||'-'}</span></td>
-    <td>${r.발화수||0}</td>
-    <td><span style="font-size:11px;font-weight:700;background:var(--pur-lt);color:var(--pur);padding:2px 7px;border-radius:8px">${r.주요코드||'-'}</span></td>
-    <td style="font-size:11px;color:var(--ink2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(r.발화전체||'').split('\n').slice(0,2).join(' / ')}</td>
-    <td>${r.제출시각?'✅':'-'}</td>
-  </tr>`).join('');
+  tb.innerHTML=data.map(r=>'<tr><td><strong>'+r.이름+'</strong></td><td>'+r.팀+'</td><td><span style="font-size:10px;background:var(--amb-lt);color:var(--amb);padding:1px 6px;border-radius:6px">'+r.제출단계+'</span></td><td><span style="font-size:11px;font-weight:700;background:var(--teal-lt);color:var(--teal);padding:2px 7px;border-radius:8px">'+(r.메모_주요전략||'-')+'</span></td><td>'+(r.발화수||0)+'</td><td><span style="font-size:11px;font-weight:700;background:var(--pur-lt);color:var(--pur);padding:2px 7px;border-radius:8px">'+(r.주요코드||'-')+'</span></td><td style="font-size:11px;color:var(--ink3)">'+(r.제출시각||'-')+'</td></tr>').join('');
 }
-function dlCSV(rows, filename){
-  const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',')).join('\n');
+function dlCSV(rows,filename){
+  const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download=filename+'_'+new Date().toLocaleDateString('ko-KR').replace(/[\s.]/g,'')+'.csv';
-  a.click();
+  a.download=filename+'_'+new Date().toLocaleDateString('ko-KR').replace(/[\s.]/g,'')+'.csv';a.click();
 }
-
 function downloadCSV(){
   const data=JSON.parse(localStorage.getItem('rd_subs')||'[]');
   if(!data.length){toast('데이터가 없습니다');return}
-
-  // ── 파일 1: 학생 요약 (가로형) ──────────────────────
-  const H1=['이름','팀','구간',
-    '메모_명료화','메모_질문','메모_요약','메모_자유',
-    '메모_주요전략','메모_전략분석','메모_전략분포',
-    '발화수','주요코드','코드분포','제출시각'];
-  const rows1=[H1, ...data.map(r=>H1.map(k=>r[k]||''))];
-  dlCSV(rows1, '읽기토의_학생요약');
-
-  // ── 파일 2: 발화 상세 (세로형, R·Python·NVivo용) ────
-  const H2=['이름','팀','구간','발화번호','발화자','발화내용','담화코드','코드명','분석이유','입력방식','제출시각'];
-  const rows2=[H2];
-  const CODELAB={
-    CLA:'명료화',QUE:'탐구질문',SUM:'통합요약',EVA:'비판평가',
-    REF:'연결반성',EVI:'근거제시',EXT:'확장연결',NEG:'협상조정',MET:'메타담화'
-  };
-  data.forEach(r=>{
-    // 발화전체 파싱: "[발화N] 발화자: 내용 | 코드:XXX (이유)" 형식
-    const uttsFull=r.발화전체||'';
-    if(!uttsFull||uttsFull==='(토의 발화 없음)'){
-      // 발화 없는 경우 빈 행 1개
-      rows2.push([r.이름,r.팀,r.구간,'','','(발화 없음)','','','','',r.제출시각||'']);
-      return;
-    }
-    const lines=uttsFull.split('\n').filter(l=>l.trim());
-    lines.forEach((line,i)=>{
-      // 파싱: [발화N] 발화자: 내용 | 코드:XXX (이유)
-      const mNum=line.match(/^\[발화(\d+)\]/);
-      const num=mNum?mNum[1]:String(i+1);
-      // 발화자: 분리
-      const afterNum=line.replace(/^\[발화\d+\]\s*/,'');
-      const colonIdx=afterNum.indexOf(':');
-      const speaker=colonIdx>-1?afterNum.slice(0,colonIdx).trim():'';
-      const rest=colonIdx>-1?afterNum.slice(colonIdx+1).trim():afterNum;
-      // 내용 | 코드:XXX (이유) 분리
-      const pipeParts=rest.split('|');
-      const text=pipeParts[0].trim();
-      let code='', reason='';
-      if(pipeParts[1]){
-        const codePart=pipeParts[1].trim(); // "코드:QUE"
-        const mCode=codePart.match(/코드:([A-Z]+)/);
-        if(mCode) code=mCode[1];
-      }
-      if(pipeParts[2]){
-        reason=pipeParts[2].trim();
-      } else if(pipeParts[1]){
-        // 이유가 코드와 같은 파트에 있는 경우
-        const mReason=pipeParts[1].match(/\((.+?)\)/);
-        if(mReason) reason=mReason[1];
-      }
-      const codeLabel=CODELAB[code]||'';
-      rows2.push([
-        r.이름, r.팀, r.구간,
-        num, speaker, text,
-        code, codeLabel, reason,
-        '', r.제출시각||''
-      ]);
-    });
-  });
-  // 약간 딜레이 후 두 번째 파일 다운
-  setTimeout(()=>{ dlCSV(rows2, '읽기토의_발화상세'); },600);
-
-  toast('📥 CSV 2개 다운로드 — 학생요약 + 발화상세');
+  const H=['제출시각','이름','팀','구간','제출단계','메모_명료화','메모_질문','메모_요약','메모_자유','메모_주요전략','메모_전략분석','메모_전략분포','발화수','주요코드','코드분포','발화전체'];
+  dlCSV([H,...data.map(r=>H.map(k=>r[k]||''))],'읽기토의_데이터');
+  toast('📥 CSV 다운로드 완료');
 }
 
-// ══════════════════════════════════════
-// 토스트
-// ══════════════════════════════════════
 let _tt;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3200);}
 
-// 초기화
 loadTeacherSettings();
 </script>
 
 <!-- Firebase 실시간 공유 -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 const firebaseConfig = {
   apiKey: "AIzaSyADMYKuvH5TR69r7zDhgzFZ45UlorSvIME",
   authDomain: "bookclub-2cde1.firebaseapp.com",
@@ -1142,28 +1019,20 @@ const firebaseConfig = {
   messagingSenderId: "751217019859",
   appId: "1:751217019859:web:cc0184bbcfc07391d13d26"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
-window.fbPush = function(teamId, utt) {
-  const r = ref(db, 'teams/' + teamId + '/utts');
-  push(r, { speaker:utt.speaker, text:utt.text, time:utt.time, src:utt.src||'stt', code:utt.code||null, reason:utt.reason||null, ts:Date.now() });
+window.fbPush = function(teamId,utt){
+  const r=ref(db,'teams/'+teamId+'/utts');
+  push(r,{speaker:utt.speaker,text:utt.text,time:utt.time,src:utt.src||'stt',code:utt.code||null,reason:utt.reason||null,ts:Date.now()});
 };
-
-window.fbSubscribe = function(teamId, callback) {
-  const r = ref(db, 'teams/' + teamId + '/utts');
-  onValue(r, (snapshot) => {
-    const data = snapshot.val();
-    if(!data){ return; }
-    // 다른 팀원이 보낸 발화만 추가 (내가 보낸 건 이미 로컬에 있음)
-    const remoteUtts = Object.entries(data)
-      .map(([k,v])=>({...v, fbKey:k}))
-      .sort((a,b)=>a.ts-b.ts);
+window.fbSubscribe = function(teamId,callback){
+  const r=ref(db,'teams/'+teamId+'/utts');
+  onValue(r,(snapshot)=>{
+    const data=snapshot.val();if(!data)return;
+    const remoteUtts=Object.entries(data).map(([k,v])=>({...v,fbKey:k})).sort((a,b)=>a.ts-b.ts);
     callback(remoteUtts);
   });
 };
-
 console.log('✅ Firebase 연결됨');
 </script>
 </body>
