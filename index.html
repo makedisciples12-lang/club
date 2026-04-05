@@ -589,10 +589,15 @@ function studentLogin(){
   resetStageBtns();
   if(window.fbSubscribe){
     window.fbSubscribe(team, (remoteUtts)=>{
-      const myIds=new Set(D.utts.map(u=>u.ts));
-      remoteUtts.forEach(ru=>{if(!myIds.has(ru.ts))D.utts.push(ru);});
-      D.utts.sort((a,b)=>(a.ts||0)-(b.ts||0));
-      renderUtts();
+      const knownFbKeys=new Set(D.utts.map(u=>u.fbKey).filter(Boolean));
+      const knownLocalIds=new Set(D.utts.map(u=>u.localId).filter(Boolean));
+      let changed=false;
+      remoteUtts.forEach(ru=>{
+        if(knownFbKeys.has(ru.fbKey))return;
+        if(ru.localId&&knownLocalIds.has(ru.localId))return;
+        D.utts.push(ru);changed=true;
+      });
+      if(changed){D.utts.sort((a,b)=>(a.ts||0)-(b.ts||0));renderUtts();}
     });
   }
 }
@@ -788,7 +793,9 @@ function saveUtt(){
   const text=manualText||liveText;
   if(!text){toast('저장할 내용이 없습니다.');return}
   if(!D.speaker){toast('발화자를 선택해주세요');return}
-  const utt={id:Date.now(),speaker:D.speaker,text,time:new Date().toLocaleTimeString('ko-KR'),src:manualText?'manual':'stt',code:null,reason:null,ts:Date.now()};
+  // localId: 내가 만든 발화임을 표시 — Firebase 콜백에서 중복 방지에 사용
+  const localId='local_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  const utt={id:Date.now(),localId,speaker:D.speaker,text,time:new Date().toLocaleTimeString('ko-KR'),src:manualText?'manual':'stt',code:null,reason:null,ts:Date.now()};
   D.utts.push(utt);renderUtts();
   if(window.fbPush&&G.team){try{window.fbPush(G.team,utt);}catch(e){}}
   D.liveBuf='';
@@ -1023,7 +1030,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 window.fbPush = function(teamId,utt){
   const r=ref(db,'teams/'+teamId+'/utts');
-  push(r,{speaker:utt.speaker,text:utt.text,time:utt.time,src:utt.src||'stt',code:utt.code||null,reason:utt.reason||null,ts:Date.now()});
+  // localId를 Firebase에도 저장 → 콜백에서 내 발화 걸러낼 수 있음
+  push(r,{speaker:utt.speaker,text:utt.text,time:utt.time,src:utt.src||'stt',code:utt.code||null,reason:utt.reason||null,ts:utt.ts||Date.now(),localId:utt.localId||''});
 };
 window.fbSubscribe = function(teamId,callback){
   const r=ref(db,'teams/'+teamId+'/utts');
